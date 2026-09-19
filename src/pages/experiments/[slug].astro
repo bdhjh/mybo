@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+	const experiments = await getCollection('experiments');
+
+	return experiments.map((experiment) => ({
+		params: {
+			slug: experiment.id,
+		},
+		props: {
+			experiment,
+		},
+	}));
+}
+
+const { experiment } = Astro.props;
+const { Content } = await render(experiment);
+---
+
+<Layout
+	title={`${experiment.data.title} — MyBo`}
+	description={experiment.data.description}
+>
+	<article class="mx-auto max-w-4xl px-6 py-20">
+		<header>
+			<p class="text-sm font-medium text-zinc-500">
+				EXPERIMENT
+			</p>
+
+			<h1 class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+				{experiment.data.title}
+			</h1>
+
+			<p class="mt-5 text-lg leading-8 text-zinc-600">
+				{experiment.data.description}
+			</p>
+
+			<div class="mt-6 flex flex-wrap gap-2">
+				{experiment.data.tags.map((tag) => (
+					<span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
+						{tag}
+					</span>
+				))}
+			</div>
+
+			<p class="mt-4 text-sm text-zinc-400">
+				Status: {experiment.data.status}
+			</p>
+		</header>
+
+		<div class="mt-12 border-t border-zinc-200 pt-10">
+			<Content />
+		</div>
+
+		<div class="mt-12 border-t border-zinc-200 pt-8">
+			<a
+				href="/experiments"
+				class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+			>
+				← Back to Experiments
+			</a>
+		</div>
+	</article>
+</Layout>

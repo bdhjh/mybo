@@ -1,11 +1,231 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const projects = await getCollection('projects');
+const experiments = await getCollection('experiments');
+const notes = await getCollection('notes');
+
+const featuredProjects = projects
+	.filter((project) => project.data.featured)
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const latestExperiments = [...experiments]
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 3);
+
+const latestNotes = [...notes]
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 3);
 ---
 
 <Layout>
-	<Welcome />
+	<section class="mx-auto max-w-6xl px-6 py-24">
+		<p class="text-sm font-medium text-zinc-500">MYBO</p>
+
+		<h1 class="mt-4 text-5xl font-bold tracking-tight">
+			Personal AI Lab & System Hub
+		</h1>
+
+		<p class="mt-6 max-w-2xl text-xl leading-8 text-zinc-600">
+			Build with AI. Automate the real world.
+		</p>
+
+		<div class="mt-10 flex gap-4">
+			<a
+				href="/projects"
+				class="rounded-lg bg-zinc-900 px-5 py-3 text-sm font-medium text-white"
+			>
+				View Projects
+			</a>
+
+			<a
+				href="/experiments"
+				class="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium"
+			>
+				View Experiments
+			</a>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<p class="text-sm font-medium text-zinc-500">NOW BUILDING</p>
+
+			<h2 class="mt-3 text-3xl font-bold tracking-tight">
+				AI Automation
+			</h2>
+
+			<p class="mt-5 max-w-2xl leading-8 text-zinc-600">
+				探索 AI、Automation、Agent 和 Workflow 如何进入真实工作流程。
+			</p>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<div class="flex items-end justify-between">
+				<div>
+					<p class="text-sm font-medium text-zinc-500">FEATURED PROJECTS</p>
+					<h2 class="mt-3 text-3xl font-bold tracking-tight">
+						Featured Projects
+					</h2>
+				</div>
+
+				<a
+					href="/projects"
+					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+				>
+					View all →
+				</a>
+			</div>
+
+			<div class="mt-10 grid gap-6 md:grid-cols-2">
+				{
+					featuredProjects.map((project) => (
+						<article class="rounded-xl border border-zinc-200 p-6">
+							<p class="text-xs font-medium text-zinc-400">
+								{project.data.status.toUpperCase()}
+							</p>
+
+							<h3 class="mt-3 text-xl font-semibold">
+								<a
+									href={`/projects/${project.id}`}
+									class="hover:underline"
+								>
+									{project.data.title}
+								</a>
+							</h3>
+
+							<p class="mt-3 leading-7 text-zinc-600">
+								{project.data.description}
+							</p>
+
+							<div class="mt-5 flex flex-wrap gap-2">
+								{project.data.tags.map((tag) => (
+									<span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
+										{tag}
+									</span>
+								))}
+							</div>
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<div class="flex items-end justify-between">
+				<div>
+					<p class="text-sm font-medium text-zinc-500">LATEST EXPERIMENTS</p>
+					<h2 class="mt-3 text-3xl font-bold tracking-tight">
+						Latest Experiments
+					</h2>
+				</div>
+
+				<a
+					href="/experiments"
+					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+				>
+					View all →
+				</a>
+			</div>
+
+			<div class="mt-10 grid gap-6 md:grid-cols-3">
+				{
+					latestExperiments.map((experiment) => (
+						<article class="rounded-xl border border-zinc-200 p-6">
+							<p class="text-xs text-zinc-400">
+								{experiment.data.date.toLocaleDateString('zh-CN')}
+							</p>
+
+							<h3 class="mt-3 text-xl font-semibold">
+								<a
+									href={`/experiments/${experiment.id}`}
+									class="hover:underline"
+								>
+									{experiment.data.title}
+								</a>
+							</h3>
+
+							<p class="mt-3 leading-7 text-zinc-600">
+								{experiment.data.description}
+							</p>
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<div class="flex items-end justify-between">
+				<div>
+					<p class="text-sm font-medium text-zinc-500">LATEST NOTES</p>
+					<h2 class="mt-3 text-3xl font-bold tracking-tight">
+						Latest Notes
+					</h2>
+				</div>
+
+				<a
+					href="/notes"
+					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
+				>
+					View all →
+				</a>
+			</div>
+
+			<div class="mt-10 grid gap-6 md:grid-cols-3">
+				{
+					latestNotes.map((note) => (
+						<article class="rounded-xl border border-zinc-200 p-6">
+							<p class="text-xs text-zinc-400">
+								{note.data.date.toLocaleDateString('zh-CN')}
+							</p>
+
+							<h3 class="mt-3 text-xl font-semibold">
+								<a
+									href={`/notes/${note.id}`}
+									class="hover:underline"
+								>
+									{note.data.title}
+								</a>
+							</h3>
+
+							<p class="mt-3 leading-7 text-zinc-600">
+								{note.data.description}
+							</p>
+						</article>
+					))
+				}
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<p class="text-sm font-medium text-zinc-500">PHILOSOPHY</p>
+
+			<h2 class="mt-3 text-3xl font-bold tracking-tight">
+				Build → Learn → Share
+			</h2>
+
+			<p class="mt-5 max-w-2xl leading-8 text-zinc-600">
+				通过真实项目不断实验，把 AI 工具使用经验沉淀成可复用的系统、方法和资产。
+			</p>
+		</div>
+	</section>
+
+	<section class="border-t border-zinc-200">
+		<div class="mx-auto max-w-6xl px-6 py-20">
+			<p class="text-sm font-medium text-zinc-500">MYBO LOOP</p>
+
+			<h2 class="mt-3 text-3xl font-bold tracking-tight">
+				Explore → Build → Use → Learn → Share → Iterate
+			</h2>
+		</div>
+	</section>
 </Layout>
