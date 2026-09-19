@@ -1,0 +1,66 @@
+---
+// 区块标题：mono 眉标 + 大标题 + 可选的「查看全部」链接
+// 所有文案都成对提供 zh / en；未提供 en 时该元素不参与切换（保持中文）
+interface Props {
+	eyebrow?: string;
+	eyebrowEn?: string;
+	title: string;
+	titleEn?: string;
+	actionHref?: string;
+	actionLabel?: string;
+	actionLabelEn?: string;
+	class?: string;
+}
+
+const {
+	eyebrow,
+	eyebrowEn,
+	title,
+	titleEn,
+	actionHref,
+	actionLabel = '查看全部',
+	actionLabelEn = 'View all',
+	class: className = '',
+} = Astro.props;
+---
+
+<div class:list={['flex flex-wrap items-end justify-between gap-6', className]}>
+	<div>
+		{
+			eyebrow && (
+				<p class="eyebrow m-0" data-zh={eyebrow} data-en={eyebrowEn}>
+					{eyebrow}
+				</p>
+			)
+		}
+		<h2
+			class:list={[
+				'm-0 text-2xl font-bold tracking-tight text-mybo-fg sm:text-[28px]',
+				eyebrow ? 'mt-1.5' : '',
+			]}
+			data-zh={title}
+			data-en={titleEn}
+		>
+			{title}
+		</h2>
+	</div>
+
+	{
+		actionHref && (
+			<a
+				href={actionHref}
+				class="group inline-flex items-center gap-1.5 text-[13.5px] font-medium text-mybo-muted transition-colors duration-200 hover:text-mybo-fg"
+			>
+				<span data-zh={actionLabel} data-en={actionLabelEn}>
+					{actionLabel}
+				</span>
+				<span
+					class="transition-transform duration-200 group-hover:translate-x-1"
+					aria-hidden="true"
+				>
+					→
+				</span>
+			</a>
+		)
+	}
+</div>

@@ -1,0 +1,118 @@
+---
+import { t } from '../i18n/ui';
+
+// 页面头部：面包屑 + 眉标 + H1 + 导语 + 计数/元信息
+// 所有文案成对提供 zh / en；未提供 en 时该元素不参与切换
+interface Crumb {
+	href: string;
+	zh: string;
+	en?: string;
+}
+
+interface Props {
+	eyebrow?: string;
+	eyebrowEn?: string;
+	title: string;
+	titleEn?: string;
+	lede?: string;
+	ledeEn?: string;
+	crumbs?: Crumb[];
+	meta?: string;
+	metaEn?: string;
+	class?: string;
+}
+
+const {
+	eyebrow,
+	eyebrowEn,
+	title,
+	titleEn,
+	lede,
+	ledeEn,
+	crumbs = [],
+	meta,
+	metaEn,
+	class: className = '',
+} = Astro.props;
+
+const home = t('nav.home');
+const breadcrumbLabel = t('label.breadcrumb');
+---
+
+<header class:list={['pt-10 pb-8 sm:pt-14', className]}>
+	{
+		crumbs.length > 0 && (
+			<nav
+				class="mb-8 flex flex-wrap items-center gap-2 font-mono text-[11.5px] text-mybo-faint"
+				aria-label={`${breadcrumbLabel.zh} / ${breadcrumbLabel.en}`}
+			>
+				<a
+					href="/"
+					class="transition-colors hover:text-mybo-fg"
+					data-zh={home.zh}
+					data-en={home.en}
+				>
+					{home.zh}
+				</a>
+				{crumbs.map((crumb) => (
+					<>
+						<span class="text-mybo-line-strong" aria-hidden="true">
+							/
+						</span>
+						<a
+							href={crumb.href}
+							class="transition-colors hover:text-mybo-fg"
+							data-zh={crumb.zh}
+							data-en={crumb.en}
+						>
+							{crumb.zh}
+						</a>
+					</>
+				))}
+			</nav>
+		)
+	}
+
+	{
+		eyebrow && (
+			<p class="eyebrow m-0" data-zh={eyebrow} data-en={eyebrowEn}>
+				{eyebrow}
+			</p>
+		)
+	}
+
+	<h1
+		class:list={[
+			'm-0 text-[34px] font-extrabold leading-[1.12] tracking-[-0.03em] text-mybo-fg sm:text-[44px]',
+			eyebrow ? 'mt-4' : '',
+		]}
+		data-zh={title}
+		data-en={titleEn}
+	>
+		{title}
+	</h1>
+
+	{
+		lede && (
+			<p
+				class="m-0 mt-4 max-w-[600px] text-[16px] leading-[1.7] text-mybo-muted"
+				data-zh={lede}
+				data-en={ledeEn}
+			>
+				{lede}
+			</p>
+		)
+	}
+
+	{
+		meta && (
+			<p
+				class="mb-0 mt-6 font-mono text-[11.5px] tracking-[0.06em] text-mybo-faint"
+				data-zh={meta}
+				data-en={metaEn}
+			>
+				{meta}
+			</p>
+		)
+	}
+</header>

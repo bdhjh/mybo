@@ -1,0 +1,25 @@
+---
+// 中英文切换开关（分段控件）
+// 真正的切换逻辑在 src/layouts/Layout.astro 的 is:inline 脚本里，
+// 这里只负责渲染控件本身与初始状态（默认选中中文）。
+const { class: className = '' } = Astro.props;
+---
+
+<div
+	class:list={['lang-switch', className]}
+	role="group"
+	aria-label="语言 / Language"
+>
+	<button
+		type="button"
+		data-set-lang="zh"
+		data-active="true"
+		aria-pressed="true"
+	>中</button>
+	<button
+		type="button"
+		data-set-lang="en"
+		data-active="false"
+		aria-pressed="false"
+	>EN</button>
+</div>

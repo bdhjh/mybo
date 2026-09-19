@@ -1,1 +1,350 @@
+/* ============================================================
+   MyBo — 全局样式与设计系统
+   ------------------------------------------------------------
+   1) Tailwind v4
+   2) @theme  设计令牌（颜色 / 字体 / 圆角）
+   3) base    基础层（背景、文字、选中、聚焦）
+   4) components  统一容器壳 .shell、mono 眉标 .eyebrow、正文排版 .prose-mybo
+   ------------------------------------------------------------
+   说明：字体在 src/layouts/Layout.astro 的 <head> 里非阻塞加载，
+   这里不再使用 @import url(...)，避免阻塞首屏渲染。
+   ============================================================ */
+
 @import "tailwindcss";
+
+/* ---------- 2) 设计令牌：统一色彩与字体 ---------- */
+@theme {
+  --font-sans: 'Inter', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei',
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Mono', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+
+  /* 单色系统 */
+  --color-mybo-bg: #fafafa;          /* 页面底色 */
+  --color-mybo-surface: #ffffff;     /* 卡片/面板 */
+  --color-mybo-surface-2: #f4f4f5;   /* 次级填充 */
+  --color-mybo-line: #e6e6e8;        /* 分隔线 */
+  --color-mybo-line-strong: #d4d4d8; /* 强调边框 */
+  --color-mybo-fg: #18181b;          /* 主文字 */
+  --color-mybo-fg-2: #3f3f46;        /* 次主文字 */
+  --color-mybo-muted: #52525b;       /* 正文（对比度 7.4:1） */
+  --color-mybo-faint: #71717a;       /* 小号标签（对比度 4.7:1，过 AA） */
+
+  /* 语义色：仅两个色系，克制使用 */
+  --color-mybo-accent: #047857;      /* 进行中 / 活跃 */
+  --color-mybo-accent-bg: #ecfdf5;
+  --color-mybo-accent-line: #a7f3d0;
+  --color-mybo-blue: #1d4ed8;        /* 已完成 / 流程 */
+  --color-mybo-blue-bg: #eff6ff;
+  --color-mybo-blue-line: #bfdbfe;
+
+  /* 圆角 */
+  --radius-mybo: 16px;
+  --radius-mybo-md: 12px;
+  --radius-mybo-sm: 8px;
+}
+
+/* ---------- 3) 基础层 ---------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-mybo-bg);
+    color: var(--color-mybo-fg);
+    font-family: var(--font-sans);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: #18181b;
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-mybo-fg);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------- 4) 公共构件 ---------- */
+@layer components {
+  /* 统一容器宽度与左右留白：所有页面共用，保证栅格对齐 */
+  .shell {
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  /* 小号 mono 眉标：FEATURED PROJECTS / LAB / LOGS ... */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-mybo-faint);
+  }
+
+  /* 正文排版：Markdown 渲染内容统一可读性 */
+  .prose-mybo {
+    color: var(--color-mybo-muted);
+    font-size: 15.5px;
+    line-height: 1.8;
+  }
+
+  .prose-mybo > * {
+    margin: 0;
+  }
+
+  .prose-mybo > * + * {
+    margin-top: 1.15rem;
+  }
+
+  /* 正文首行的 H1 与页面标题重复（frontmatter title），隐藏以免重影 */
+  .prose-mybo > h1:first-child {
+    display: none;
+  }
+
+  .prose-mybo h1,
+  .prose-mybo h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2.6rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo h1::before,
+  .prose-mybo h2::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo h3 {
+    margin-top: 2rem;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo h4 {
+    margin-top: 1.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo strong {
+    font-weight: 600;
+    color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo a {
+    color: var(--color-mybo-fg);
+    text-decoration: underline;
+    text-decoration-color: var(--color-mybo-line-strong);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.18s ease;
+  }
+
+  .prose-mybo a:hover {
+    text-decoration-color: var(--color-mybo-fg);
+  }
+
+  .prose-mybo ul,
+  .prose-mybo ol {
+    padding-left: 1.35em;
+  }
+
+  .prose-mybo ul {
+    list-style: disc;
+  }
+
+  .prose-mybo ol {
+    list-style: decimal;
+  }
+
+  .prose-mybo li {
+    padding-left: 0.2em;
+    margin-top: 0.45rem;
+  }
+
+  .prose-mybo li::marker {
+    color: var(--color-mybo-faint);
+  }
+
+  .prose-mybo code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    background-color: var(--color-mybo-surface-2);
+    color: var(--color-mybo-fg-2);
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+  }
+
+  .prose-mybo pre {
+    background-color: var(--color-mybo-fg);
+    color: #e7e7e9;
+    border-radius: var(--radius-mybo-md);
+    padding: 1.05rem 1.15rem;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .prose-mybo pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  .prose-mybo blockquote {
+    border-left: 2px solid var(--color-mybo-line-strong);
+    padding-left: 1.1rem;
+    color: var(--color-mybo-faint);
+  }
+
+  .prose-mybo hr {
+    border: 0;
+    border-top: 1px solid var(--color-mybo-line);
+    margin: 2.6rem 0;
+  }
+
+  .prose-mybo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-mybo-line);
+    border-radius: var(--radius-mybo-md);
+  }
+
+  .prose-mybo table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .prose-mybo th,
+  .prose-mybo td {
+    border: 1px solid var(--color-mybo-line);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+  }
+
+  .prose-mybo th {
+    background-color: var(--color-mybo-surface-2);
+    color: var(--color-mybo-fg-2);
+    font-weight: 600;
+  }
+}
+
+/* ---------- 5) 中英文切换（zh 默认 / en 可选） ----------
+   原理：可翻译元素同时带 data-zh 与 data-en，服务端先渲染中文，
+   Layout.astro 末尾的脚本在首帧前按 localStorage 结果替换文本。
+   这里只负责：开关控件样式、首帧防闪烁、中文眉标字距微调。 */
+
+@layer components {
+  /* 导航右侧的「中 / EN」分段开关 */
+  .lang-switch {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--color-mybo-line);
+    border-radius: 999px;
+    background-color: var(--color-mybo-surface-2);
+  }
+
+  .lang-switch button {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background-color: transparent;
+    color: var(--color-mybo-faint);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    transition:
+      background-color 0.18s ease,
+      color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .lang-switch button:hover {
+    color: var(--color-mybo-fg);
+  }
+
+  .lang-switch button[data-active='true'] {
+    background-color: var(--color-mybo-surface);
+    color: var(--color-mybo-fg);
+    box-shadow: 0 1px 2px rgba(24, 24, 27, 0.08);
+  }
+}
+
+/* 中文界面：mono 眉标字距收紧，避免 CJK 字符之间过于松散 */
+html[data-lang='zh'] .eyebrow {
+  letter-spacing: 0.1em;
+}
+
+/* 首帧防闪烁：存储语言为 en 时，脚本执行前先盖住中文，避免闪一下中文 */
+html[data-lang='en']:not(.lang-ready) [data-zh][data-en] {
+  color: transparent !important;
+}
+
+html[data-lang='en']:not(.lang-ready) [data-panel='zh'] {
+  display: none;
+}
+
+/* 窄屏下导航需要横向容纳 logo + 菜单 + 语言开关，允许滚动但隐藏滚动条 */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 小屏收紧两侧留白，给放大的 logo 和语言开关留出空间 */
+@media (max-width: 480px) {
+  .shell {
+    padding-inline: 1rem;
+  }
+}

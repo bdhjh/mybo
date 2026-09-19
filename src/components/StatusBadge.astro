@@ -1,0 +1,66 @@
+---
+import { t, type I18nText, type UIKey } from '../i18n/ui';
+
+// 状态徽章：把 schema 里的 status 映射为统一的展示文案与配色（中英各一套）
+// project:    active | completed | archived
+// experiment: idea | running | completed
+interface Props {
+	status: string;
+	kind?: 'project' | 'experiment';
+	class?: string;
+}
+
+const { status, kind = 'project', class: className = '' } = Astro.props;
+
+const statusKeyMap: Record<string, UIKey> = {
+	'project:active': 'status.active',
+	'project:completed': 'status.completed',
+	'project:archived': 'status.archived',
+	'experiment:idea': 'status.idea',
+	'experiment:running': 'status.running',
+	'experiment:completed': 'status.completed',
+};
+
+const toneMap: Record<string, 'accent' | 'blue' | 'mute'> = {
+	'project:active': 'accent',
+	'project:completed': 'blue',
+	'project:archived': 'mute',
+	'experiment:idea': 'mute',
+	'experiment:running': 'accent',
+	'experiment:completed': 'blue',
+};
+
+const dotMap: Record<string, boolean> = {
+	'project:active': true,
+	'experiment:running': true,
+};
+
+const key = `${kind}:${status}`;
+const text: I18nText = statusKeyMap[key] ? t(statusKeyMap[key]) : { zh: status, en: status };
+const tone = toneMap[key] ?? 'mute';
+const dot = dotMap[key] ?? false;
+
+const toneClass: Record<string, string> = {
+	accent: 'border-mybo-accent-line bg-mybo-accent-bg text-mybo-accent',
+	blue: 'border-mybo-blue-line bg-mybo-blue-bg text-mybo-blue',
+	mute: 'border-mybo-line bg-mybo-surface-2 text-mybo-faint',
+};
+---
+
+<span
+	class:list={[
+		'inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] font-mono text-[10.5px] font-semibold uppercase tracking-[0.08em] whitespace-nowrap',
+		toneClass[tone],
+		className,
+	]}
+>
+	{
+		dot && (
+			<span
+				class="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-current"
+				aria-hidden="true"
+			/>
+		)
+	}
+	<span data-zh={text.zh} data-en={text.en}>{text.zh}</span>
+</span>

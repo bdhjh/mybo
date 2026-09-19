@@ -1,26 +1,45 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
 ---
 
-<Layout title="About — MyBo">
-	<section class="mx-auto max-w-6xl px-6 py-20">
-		<p class="text-sm font-medium text-zinc-500">ABOUT</p>
-		<h1 class="mt-3 text-4xl font-bold tracking-tight">About MyBo</h1>
+<Layout
+	title="About — MyBo"
+	description="MyBo 是一个持续构建和记录 AI 应用的个人实验室。"
+>
+	<div class="shell">
+		<PageHead
+			eyebrow="关于"
+			eyebrowEn="About"
+			title="关于 MyBo"
+			titleEn="About MyBo"
+		/>
 
-		<div class="mt-8 max-w-2xl space-y-5 text-lg leading-8 text-zinc-600">
-			<p>
-				MyBo 是一个持续构建和记录 AI 应用的个人实验室。
-			</p>
+		<article class="border-t border-mybo-line pt-10">
+			<div class="prose-mybo max-w-[760px]">
+				<p
+					data-zh="MyBo 是一个持续构建和记录 AI 应用的个人实验室。"
+					data-en="MyBo is a personal lab for continuously building and documenting AI applications."
+				>
+					MyBo 是一个持续构建和记录 AI 应用的个人实验室。
+				</p>
 
-			<p>
-				这里关注 AI Automation、AI Agent、Workflow、
-				本地 AI 以及 AI 在真实工作中的应用。
-			</p>
+				<p
+					data-zh="这里关注 AI Automation、AI Agent、Workflow、本地 AI 以及 AI 在真实工作中的应用。"
+					data-en="The focus is AI automation, AI agents, workflows, local AI, and how AI shows up in real work."
+				>
+					这里关注 AI Automation、AI Agent、Workflow、本地 AI 以及 AI
+					在真实工作中的应用。
+				</p>
 
-			<p>
-				通过 Explore → Build → Use → Learn → Share → Iterate，
-				把实践逐步沉淀为可以复用的系统和资产。
-			</p>
-		</div>
-	</section>
+				<p
+					data-zh="通过 Explore → Build → Use → Learn → Share → Iterate，把实践逐步沉淀为可以复用的系统和资产。"
+					data-en="Through Explore → Build → Use → Learn → Share → Iterate, practice gradually settles into reusable systems and assets."
+				>
+					通过 Explore → Build → Use → Learn → Share → Iterate，
+					把实践逐步沉淀为可以复用的系统和资产。
+				</p>
+			</div>
+		</article>
+	</div>
 </Layout>

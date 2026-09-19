@@ -1,0 +1,43 @@
+---
+// 页脚：版权 + 外链（mono 小字，全站统一）
+const year = new Date().getFullYear();
+
+const socialLinks = [
+	{ href: 'https://github.com/', label: 'GitHub', external: true },
+	{ href: 'https://twitter.com/', label: 'Twitter', external: true },
+	{ href: '/rss.xml', label: 'RSS', external: false },
+];
+
+const tagline = {
+	zh: '个人 AI 实验室与智能系统中枢',
+	en: 'Personal AI Lab & System Hub',
+};
+---
+
+<footer class="mt-24 border-t border-mybo-line">
+	<div
+		class="shell flex flex-col items-center justify-between gap-4 py-10 font-mono text-[11.5px] text-mybo-faint sm:flex-row"
+	>
+		<p
+			class="m-0"
+			data-zh={`© ${year} MYBO · ${tagline.zh}`}
+			data-en={`© ${year} MYBO · ${tagline.en}`}
+		>
+			© {year} MYBO · {tagline.zh}
+		</p>
+		<div class="flex items-center gap-6">
+			{
+				socialLinks.map((link) => (
+					<a
+						href={link.href}
+						target={link.external ? '_blank' : undefined}
+						rel={link.external ? 'noopener noreferrer' : undefined}
+						class="transition-colors duration-200 hover:text-mybo-fg"
+					>
+						{link.label}
+					</a>
+				))
+			}
+		</div>
+	</div>
+</footer>

@@ -1,0 +1,82 @@
+---
+import StatusBadge from './StatusBadge.astro';
+import Tag from './Tag.astro';
+import { formatDates } from '../utils/date';
+
+// 实验条目：首页 Latest Experiments 与 /experiments 列表页共用
+interface Props {
+	href: string;
+	title: string;
+	titleEn?: string;
+	description: string;
+	descriptionEn?: string;
+	status: string;
+	index?: number;
+	date?: Date;
+	tags?: string[];
+	class?: string;
+}
+
+const {
+	href,
+	title,
+	titleEn,
+	description,
+	descriptionEn,
+	status,
+	index,
+	date,
+	tags = [],
+	class: className = '',
+} = Astro.props;
+
+const dates = date ? formatDates(date) : undefined;
+---
+
+<article class:list={['group py-5', className]}>
+	<div
+		class="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] tracking-[0.06em] text-mybo-faint"
+	>
+		<span class="flex items-center gap-2.5">
+			{
+				typeof index === 'number' && (
+					<span class="font-semibold text-mybo-fg">
+						{String(index).padStart(2, '0')}
+					</span>
+				)
+			}
+			<StatusBadge status={status} kind="experiment" />
+		</span>
+		{
+			dates && (
+				<time data-zh={dates.zh} data-en={dates.en}>
+					{dates.zh}
+				</time>
+			)
+		}
+	</div>
+
+	<h3 class="mt-2 text-[16.5px] font-semibold tracking-[-0.01em] text-mybo-fg transition-colors duration-200 group-hover:text-mybo-muted">
+		<a href={href}>
+			<span data-zh={title} data-en={titleEn}>{title}</span>
+		</a>
+	</h3>
+
+	<p
+		class="mt-1.5 line-clamp-2 text-[14px] leading-[1.6] text-mybo-muted"
+		data-zh={description}
+		data-en={descriptionEn}
+	>
+		{description}
+	</p>
+
+	{
+		tags.length > 0 && (
+			<div class="mt-3 flex flex-wrap gap-1.5">
+				{tags.map((tag) => (
+					<Tag label={tag} />
+				))}
+			</div>
+		)
+	}
+</article>

@@ -1,0 +1,19 @@
+---
+// 标签胶囊：全站统一的标签样式（mono 小字）
+interface Props {
+	label: string;
+	prefix?: boolean; // 是否显示 # 前缀
+	class?: string;
+}
+
+const { label, prefix = true, class: className = '' } = Astro.props;
+---
+
+<span
+	class:list={[
+		'inline-block rounded-md bg-mybo-surface-2 px-2 py-[3px] font-mono text-[11px] text-mybo-muted',
+		className,
+	]}
+>
+	{prefix ? `#${label}` : label}
+</span>

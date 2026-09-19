@@ -1,6 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import ExperimentItem from '../components/ExperimentItem.astro';
+import NoteItem from '../components/NoteItem.astro';
+import Tag from '../components/Tag.astro';
+import { projectsEn, experimentsEn, notesEn } from '../i18n/content-en';
+import { t } from '../i18n/ui';
 
 const projects = await getCollection('projects');
 const experiments = await getCollection('experiments');
@@ -17,215 +24,297 @@ const latestExperiments = [...experiments]
 const latestNotes = [...notes]
 	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
 	.slice(0, 3);
+
+const nowBuildingTags = ['AI', 'Workflow', 'Agent', 'Automation'];
+
+const viewAll = t('action.viewAll');
 ---
 
 <Layout>
-	<section class="mx-auto max-w-6xl px-6 py-24">
-		<p class="text-sm font-medium text-zinc-500">MYBO</p>
+	<!-- HERO -->
+	<section class="shell pt-16 pb-20 sm:pt-24 sm:pb-28">
+		<div class="grid items-center gap-12 lg:grid-cols-12">
+			<div class="lg:col-span-7">
+				<span
+					class="inline-flex items-center gap-2 rounded-full border border-mybo-line bg-mybo-surface px-3 py-1 font-mono text-[11.5px] font-medium tracking-[0.1em] text-mybo-muted"
+				>
+					<span
+						class="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-emerald-500"
+					></span>
+					PERSONAL AI LAB
+				</span>
 
-		<h1 class="mt-4 text-5xl font-bold tracking-tight">
-			Personal AI Lab & System Hub
-		</h1>
+				<h1
+					class="mt-6 text-[38px] font-extrabold leading-[1.08] tracking-[-0.03em] text-mybo-fg sm:text-[50px] lg:text-[56px]"
+					data-zh="用 AI 构建系统。"
+					data-en="Build systems with AI."
+				>
+					用 AI 构建系统。
+				</h1>
+				<p
+					class="mt-2 text-[24px] font-semibold leading-[1.2] tracking-[-0.02em] text-mybo-faint sm:text-[30px]"
+					data-zh="自动化真实世界。"
+					data-en="Automate the real world."
+				>
+					自动化真实世界。
+				</p>
 
-		<p class="mt-6 max-w-2xl text-xl leading-8 text-zinc-600">
-			Build with AI. Automate the real world.
-		</p>
+				<p
+					class="mt-6 max-w-xl text-[16px] leading-[1.75] text-mybo-muted sm:text-[17px]"
+					data-zh="探索 AI、Automation、Agent 与真实工作流，把实验变成可以长期使用的系统。"
+					data-en="Exploring AI, automation, agents, and real workflows — turning experiments into systems that last."
+				>
+					探索 AI、Automation、Agent 与真实工作流，把实验变成可以长期使用的系统。
+				</p>
 
-		<div class="mt-10 flex gap-4">
-			<a
-				href="/projects"
-				class="rounded-lg bg-zinc-900 px-5 py-3 text-sm font-medium text-white"
-			>
-				View Projects
-			</a>
+				<div class="mt-8 flex flex-wrap items-center gap-3">
+					<a
+						href="/projects"
+						class="inline-flex items-center justify-center rounded-mybo-md bg-mybo-fg px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#27272a] hover:shadow-[0_8px_20px_-8px_rgba(24,24,27,0.5)] active:translate-y-0"
+						data-zh="浏览项目"
+						data-en="Explore Projects"
+					>
+						浏览项目
+					</a>
+					<a
+						href="/experiments"
+						class="inline-flex items-center justify-center rounded-mybo-md border border-mybo-line bg-mybo-surface px-6 py-3 text-sm font-medium text-mybo-fg-2 transition-all duration-200 hover:-translate-y-px hover:border-mybo-line-strong hover:bg-mybo-surface-2 active:translate-y-0"
+						data-zh="实验记录"
+						data-en="Experiments"
+					>
+						实验记录
+					</a>
+				</div>
+			</div>
 
-			<a
-				href="/experiments"
-				class="rounded-lg border border-zinc-300 px-5 py-3 text-sm font-medium"
-			>
-				View Experiments
-			</a>
+			<div class="lg:col-span-5">
+				<div
+					class="relative overflow-hidden rounded-mybo border border-mybo-line bg-gradient-to-br from-white to-[#f2f2f3] p-7 shadow-[0_1px_2px_rgba(24,24,27,0.04)]"
+				>
+					<div
+						class="pointer-events-none absolute inset-0"
+						style="background-image:linear-gradient(to right,rgba(24,24,27,0.055) 1px,transparent 1px),linear-gradient(to bottom,rgba(24,24,27,0.055) 1px,transparent 1px);background-size:24px 24px;-webkit-mask-image:radial-gradient(120% 100% at 50% 0%,#000,transparent 78%);mask-image:radial-gradient(120% 100% at 50% 0%,#000,transparent 78%);"
+					>
+					</div>
+
+					<div
+						class="relative z-10 flex flex-col items-center py-5 font-mono text-[12px]"
+					>
+						<div class="flex w-full items-center justify-center gap-3">
+							<div
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-bold text-mybo-fg shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+							>
+								AI
+							</div>
+							<span class="text-[#c4c4c8]" aria-hidden="true">→</span>
+							<div
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+							>
+								Workflow
+							</div>
+						</div>
+
+						<div class="flex items-center gap-14 py-3">
+							<span class="h-6 w-px bg-mybo-line-strong"></span>
+							<span class="h-6 w-px bg-mybo-line-strong"></span>
+						</div>
+
+						<div class="flex w-full items-center justify-center gap-3">
+							<div
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+							>
+								Agent
+							</div>
+							<span class="text-[#c4c4c8]" aria-hidden="true">→</span>
+							<div
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+							>
+								Automation
+							</div>
+						</div>
+
+						<span
+							class="my-3 h-8 w-px bg-gradient-to-b from-mybo-line-strong to-mybo-fg"
+						></span>
+
+						<div
+							class="rounded-mybo-md border border-mybo-fg bg-mybo-fg px-6 py-3 font-bold text-white shadow-[0_6px_16px_-10px_rgba(24,24,27,0.6)]"
+						>
+							Real World System
+						</div>
+					</div>
+
+					<div
+						class="relative z-10 mt-4 flex items-center justify-between border-t border-mybo-line pt-3 font-mono text-[10.5px] uppercase tracking-[0.1em] text-mybo-faint"
+					>
+						<span>System Architecture</span>
+						<span>v2.0</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</section>
 
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<p class="text-sm font-medium text-zinc-500">NOW BUILDING</p>
-
-			<h2 class="mt-3 text-3xl font-bold tracking-tight">
-				AI Automation
-			</h2>
-
-			<p class="mt-5 max-w-2xl leading-8 text-zinc-600">
-				探索 AI、Automation、Agent 和 Workflow 如何进入真实工作流程。Test
+	<!-- NOW BUILDING -->
+	<section class="border-t border-mybo-line bg-mybo-surface py-14">
+		<div class="shell">
+			<div
+				class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+			>
+				<SectionHeading
+					eyebrow="正在构建"
+					eyebrowEn="Now building"
+					title="AI 自动化系统"
+					titleEn="AI Automation Systems"
+				/>
+				<div class="flex flex-wrap gap-2">
+					{
+						nowBuildingTags.map((tag) => (
+							<Tag
+								label={tag}
+								prefix={false}
+								class="border border-mybo-line bg-mybo-bg px-2.5 py-1 text-[11.5px]"
+							/>
+						))
+					}
+				</div>
+			</div>
+			<p
+				class="mt-5 max-w-3xl leading-[1.75] text-mybo-muted"
+				data-zh="构建与测试 Agent 和 Workflow，使其深入真实工作的商业场景与效率闭环。"
+				data-en="Building and testing agents and workflows until they reach real business scenarios and close the efficiency loop."
+			>
+				构建与测试 Agent 和 Workflow，使其深入真实工作的商业场景与效率闭环。
 			</p>
 		</div>
 	</section>
 
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<div class="flex items-end justify-between">
-				<div>
-					<p class="text-sm font-medium text-zinc-500">FEATURED PROJECTS</p>
-					<h2 class="mt-3 text-3xl font-bold tracking-tight">
-						Featured Projects
-					</h2>
-				</div>
-
-				<a
-					href="/projects"
-					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
-				>
-					View all →
-				</a>
-			</div>
+	<!-- FEATURED PROJECTS -->
+	<section id="projects" class="border-t border-mybo-line py-20">
+		<div class="shell">
+			<SectionHeading
+				eyebrow="精选项目"
+				eyebrowEn="Featured projects"
+				title="项目与系统"
+				titleEn="Projects & Systems"
+				actionHref="/projects"
+				actionLabel={viewAll.zh}
+				actionLabelEn={viewAll.en}
+			/>
 
 			<div class="mt-10 grid gap-6 md:grid-cols-2">
 				{
 					featuredProjects.map((project) => (
-						<article class="rounded-xl border border-zinc-200 p-6">
-							<p class="text-xs font-medium text-zinc-400">
-								{project.data.status.toUpperCase()}
-							</p>
-
-							<h3 class="mt-3 text-xl font-semibold">
-								<a
-									href={`/projects/${project.id}`}
-									class="hover:underline"
-								>
-									{project.data.title}
-								</a>
-							</h3>
-
-							<p class="mt-3 leading-7 text-zinc-600">
-								{project.data.description}
-							</p>
-
-							<div class="mt-5 flex flex-wrap gap-2">
-								{project.data.tags.map((tag) => (
-									<span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">
-										{tag}
-									</span>
-								))}
-							</div>
-						</article>
+						<ProjectCard
+							href={`/projects/${project.id}`}
+							title={project.data.title}
+							titleEn={projectsEn[project.id]?.title}
+							description={project.data.description}
+							descriptionEn={projectsEn[project.id]?.description}
+							status={project.data.status}
+							tags={project.data.tags}
+							date={project.data.date}
+						/>
 					))
 				}
 			</div>
 		</div>
 	</section>
 
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<div class="flex items-end justify-between">
-				<div>
-					<p class="text-sm font-medium text-zinc-500">LATEST EXPERIMENTS</p>
-					<h2 class="mt-3 text-3xl font-bold tracking-tight">
-						Latest Experiments
-					</h2>
-				</div>
+	<!-- EXPERIMENTS & NOTES -->
+	<section class="border-t border-mybo-line bg-mybo-surface-2 py-20">
+		<div class="shell">
+			<div class="grid gap-12 lg:grid-cols-2 lg:gap-14">
+				<div id="experiments">
+					<SectionHeading
+						eyebrow="实验室"
+						eyebrowEn="Lab"
+						title="最新实验"
+						titleEn="Latest Experiments"
+						actionHref="/experiments"
+						actionLabel={viewAll.zh}
+						actionLabelEn={viewAll.en}
+					/>
 
-				<a
-					href="/experiments"
-					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
-				>
-					View all →
-				</a>
-			</div>
-
-			<div class="mt-10 grid gap-6 md:grid-cols-3">
-				{
-					latestExperiments.map((experiment) => (
-						<article class="rounded-xl border border-zinc-200 p-6">
-							<p class="text-xs text-zinc-400">
-								{experiment.data.date.toLocaleDateString('zh-CN')}
-							</p>
-
-							<h3 class="mt-3 text-xl font-semibold">
-								<a
+					<div
+						class="mt-6 divide-y divide-mybo-line border-t border-b border-mybo-line"
+					>
+						{
+							latestExperiments.map((experiment, idx) => (
+								<ExperimentItem
 									href={`/experiments/${experiment.id}`}
-									class="hover:underline"
-								>
-									{experiment.data.title}
-								</a>
-							</h3>
-
-							<p class="mt-3 leading-7 text-zinc-600">
-								{experiment.data.description}
-							</p>
-						</article>
-					))
-				}
-			</div>
-		</div>
-	</section>
-
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<div class="flex items-end justify-between">
-				<div>
-					<p class="text-sm font-medium text-zinc-500">LATEST NOTES</p>
-					<h2 class="mt-3 text-3xl font-bold tracking-tight">
-						Latest Notes
-					</h2>
+									title={experiment.data.title}
+									titleEn={experimentsEn[experiment.id]?.title}
+									description={experiment.data.description}
+									descriptionEn={experimentsEn[experiment.id]?.description}
+									status={experiment.data.status}
+									tags={experiment.data.tags}
+									index={idx + 1}
+									date={experiment.data.date}
+								/>
+							))
+						}
+					</div>
 				</div>
 
-				<a
-					href="/notes"
-					class="text-sm font-medium text-zinc-600 hover:text-zinc-900"
-				>
-					View all →
-				</a>
-			</div>
+				<div id="notes">
+					<SectionHeading
+						eyebrow="记录"
+						eyebrowEn="Logs"
+						title="最新笔记"
+						titleEn="Latest Notes"
+						actionHref="/notes"
+						actionLabel={viewAll.zh}
+						actionLabelEn={viewAll.en}
+					/>
 
-			<div class="mt-10 grid gap-6 md:grid-cols-3">
-				{
-					latestNotes.map((note) => (
-						<article class="rounded-xl border border-zinc-200 p-6">
-							<p class="text-xs text-zinc-400">
-								{note.data.date.toLocaleDateString('zh-CN')}
-							</p>
-
-							<h3 class="mt-3 text-xl font-semibold">
-								<a
+					<div
+						class="mt-6 divide-y divide-mybo-line border-t border-b border-mybo-line"
+					>
+						{
+							latestNotes.map((note, idx) => (
+								<NoteItem
 									href={`/notes/${note.id}`}
-									class="hover:underline"
-								>
-									{note.data.title}
-								</a>
-							</h3>
-
-							<p class="mt-3 leading-7 text-zinc-600">
-								{note.data.description}
-							</p>
-						</article>
-					))
-				}
+									title={note.data.title}
+									titleEn={notesEn[note.id]?.title}
+									description={note.data.description}
+									descriptionEn={notesEn[note.id]?.description}
+									tags={note.data.tags}
+									index={idx + 1}
+									date={note.data.date}
+								/>
+							))
+						}
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
 
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<p class="text-sm font-medium text-zinc-500">PHILOSOPHY</p>
-
-			<h2 class="mt-3 text-3xl font-bold tracking-tight">
-				Build → Learn → Share
-			</h2>
-
-			<p class="mt-5 max-w-2xl leading-8 text-zinc-600">
-				通过真实项目不断实验，把 AI 工具使用经验沉淀成可复用的系统、方法和资产。
+	<!-- OPERATING SYSTEM / PHILOSOPHY -->
+	<section id="about" class="border-t border-mybo-line bg-mybo-surface py-24">
+		<div class="shell text-center">
+			<p
+				class="eyebrow m-0"
+				data-zh="MyBo 运行系统"
+				data-en="MyBo operating system"
+			>
+				MyBo 运行系统
 			</p>
-		</div>
-	</section>
 
-	<section class="border-t border-zinc-200">
-		<div class="mx-auto max-w-6xl px-6 py-20">
-			<p class="text-sm font-medium text-zinc-500">MYBO LOOP</p>
-
-			<h2 class="mt-3 text-3xl font-bold tracking-tight">
-				Explore → Build → Use → Learn → Share → Iterate
+			<h2
+				class="m-0 mt-4 font-mono text-[22px] font-bold tracking-[0.06em] text-mybo-fg sm:text-[28px]"
+			>
+				BUILD → LEARN → SHARE → ITERATE
 			</h2>
+
+			<p
+				class="mx-auto mt-5 max-w-xl text-[15px] leading-[1.75] text-mybo-muted sm:text-base"
+				data-zh="通过真实项目实验 AI 与自动化，把经验沉淀为可复用的系统、方法与资产。"
+				data-en="Using real projects to experiment with AI and automation — turning experience into reusable systems, methods, and assets."
+			>
+				通过真实项目实验 AI 与自动化，把经验沉淀为可复用的系统、方法与资产。
+			</p>
 		</div>
 	</section>
 </Layout>

@@ -1,52 +1,139 @@
 ---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
 interface Props {
 	title?: string;
+	titleEn?: string;
 	description?: string;
 }
 
 const {
 	title = 'MyBo — Personal AI Lab & System Hub',
+	titleEn,
 	description = 'Build with AI. Automate the real world.',
 } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<!--
+			语言初始化：必须跑在 <head> 最前面。
+			CSS 里有 html[data-lang='en']:not(.lang-ready) 的防闪烁规则，
+			所以这里要尽早把 data-lang 定下来，避免英文用户先看到一帧中文。
+		-->
+		<script is:inline>
+			(function () {
+				var lang = 'zh';
+				try {
+					if (localStorage.getItem('mybo-lang') === 'en') lang = 'en';
+				} catch (e) {
+					/* 隐私模式下 localStorage 可能不可用，保持默认中文 */
+				}
+				var root = document.documentElement;
+				root.setAttribute('data-lang', lang);
+				root.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+			})();
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
+		<meta name="color-scheme" content="light" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+
+		<!-- 字体：非阻塞加载，失败时自动回退系统字体栈 -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+			media="print"
+			onload="this.media='all'"
+		/>
+		<noscript>
+			<link
+				rel="stylesheet"
+				href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+			/>
+		</noscript>
+
+		<title data-zh={title} data-en={titleEn ?? title}>{title}</title>
 	</head>
 
-	<body class="bg-white text-zinc-900 antialiased">
-		<header class="border-b border-zinc-200">
-			<div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-				<a href="/" class="text-xl font-semibold tracking-tight">
-					MyBo
-				</a>
-
-				<nav class="flex gap-6 text-sm text-zinc-600">
-					<a href="/" class="hover:text-zinc-900">Home</a>
-					<a href="/projects" class="hover:text-zinc-900">Projects</a>
-					<a href="/experiments" class="hover:text-zinc-900">Experiments</a>
-					<a href="/notes" class="hover:text-zinc-900">Notes</a>
-					<a href="/about" class="hover:text-zinc-900">About</a>
-				</nav>
-			</div>
-		</header>
+	<body class="font-sans antialiased">
+		<Nav />
 
 		<main>
 			<slot />
 		</main>
 
-		<footer class="border-t border-zinc-200">
-			<div class="mx-auto max-w-6xl px-6 py-8 text-sm text-zinc-500">
-				© {new Date().getFullYear()} MyBo. Personal AI Lab & System Hub.
-			</div>
-		</footer>
+		<Footer />
+
+		<!--
+			语言切换脚本（is:inline 保证是同步执行，跑在首帧之前，不会有中文闪一下）。
+			规则：凡是同时带 data-zh 与 data-en 的元素，文本会被替换；
+			     带 data-panel 的块级元素按语言整体显隐（详情页正文用）。
+		-->
+		<script is:inline>
+			(function () {
+				var STORAGE_KEY = 'mybo-lang';
+				var root = document.documentElement;
+
+				function readLang() {
+					try {
+						return localStorage.getItem(STORAGE_KEY) === 'en' ? 'en' : 'zh';
+					} catch (e) {
+						return 'zh';
+					}
+				}
+
+				function apply(lang) {
+					root.setAttribute('data-lang', lang);
+					root.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+
+					var i;
+					var nodes = document.querySelectorAll('[data-zh][data-en]');
+					for (i = 0; i < nodes.length; i++) {
+						var el = nodes[i];
+						var text = el.getAttribute(lang === 'en' ? 'data-en' : 'data-zh');
+						if (text !== null) el.textContent = text;
+					}
+
+					var panels = document.querySelectorAll('[data-panel]');
+					for (i = 0; i < panels.length; i++) {
+						panels[i].hidden = panels[i].getAttribute('data-panel') !== lang;
+					}
+
+					var buttons = document.querySelectorAll('[data-set-lang]');
+					for (i = 0; i < buttons.length; i++) {
+						var on = buttons[i].getAttribute('data-set-lang') === lang;
+						buttons[i].setAttribute('data-active', on ? 'true' : 'false');
+						buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+					}
+
+					root.classList.add('lang-ready');
+				}
+
+				apply(readLang());
+
+				var buttons = document.querySelectorAll('[data-set-lang]');
+				for (var i = 0; i < buttons.length; i++) {
+					buttons[i].addEventListener('click', function () {
+						var lang = this.getAttribute('data-set-lang');
+						try {
+							localStorage.setItem(STORAGE_KEY, lang);
+						} catch (e) {
+							/* 忽略：无法持久化时仅本次会话生效 */
+						}
+						apply(lang);
+					});
+				}
+			})();
+		</script>
 	</body>
 </html>

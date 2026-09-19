@@ -1,0 +1,63 @@
+---
+import LangToggle from './LangToggle.astro';
+
+// 顶部导航：Logo + 主菜单（带当前页高亮）+ 中英文切换
+const pathname = Astro.url.pathname;
+
+// zh 为默认渲染语言，en 由前端脚本替换（见 Layout.astro）
+const navItems = [
+	{ href: '/projects', zh: '项目', en: 'Projects' },
+	{ href: '/experiments', zh: '实验室', en: 'Lab' },
+	{ href: '/notes', zh: '笔记', en: 'Notes' },
+	{ href: '/about', zh: '关于', en: 'About' },
+];
+
+const isActive = (href: string) =>
+	pathname === href || pathname.startsWith(href + '/');
+---
+
+<header
+	class="sticky top-0 z-50 border-b border-mybo-line bg-white/80 backdrop-blur-md"
+>
+	<div class="shell flex h-16 items-center justify-between gap-3 sm:gap-6">
+		<a
+			href="/"
+			class="group flex flex-none items-center gap-2.5 font-mono text-[17px] font-bold tracking-[0.08em] text-mybo-fg sm:text-[18px]"
+		>
+			<span
+				class="inline-block h-3 w-3 flex-none rounded-[3px] bg-mybo-fg transition-transform duration-200 group-hover:scale-125 sm:h-3.5 sm:w-3.5"
+			></span>
+			MYBO
+		</a>
+
+		<div
+			class="no-scrollbar flex min-w-0 items-center gap-3 overflow-x-auto sm:gap-5 sm:overflow-visible"
+		>
+			<nav class="flex items-center gap-3 sm:gap-7">
+				{
+					navItems.map((item) => (
+						<a
+							href={item.href}
+							data-zh={item.zh}
+							data-en={item.en}
+							class:list={[
+								'whitespace-nowrap border-b-2 border-transparent pb-0.5 text-[12.5px] transition-colors duration-200 sm:text-sm',
+								isActive(item.href)
+									? 'border-mybo-fg font-medium text-mybo-fg'
+									: 'text-mybo-muted hover:border-mybo-line-strong hover:text-mybo-fg',
+							]}
+						>
+							{item.zh}
+						</a>
+					))
+				}
+			</nav>
+
+			<span
+				class="hidden h-4 w-px flex-none bg-mybo-line sm:block"
+				aria-hidden="true"></span>
+
+			<LangToggle />
+		</div>
+	</div>
+</header>
