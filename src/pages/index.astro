@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import SectionHeading from '../components/SectionHeading.astro';
-import ProjectCard from '../components/ProjectCard.astro';
 import ExperimentItem from '../components/ExperimentItem.astro';
 import NoteItem from '../components/NoteItem.astro';
 import Tag from '../components/Tag.astro';
@@ -189,7 +188,7 @@ const viewAll = t('action.viewAll');
 		</div>
 	</section>
 
-	<!-- FEATURED PROJECTS -->
+	<!-- FEATURED PROJECTS (优化版：左图右列表) -->
 	<section id="projects" class="border-t border-mybo-line py-14 sm:py-20">
 		<div class="shell">
 			<SectionHeading
@@ -202,21 +201,130 @@ const viewAll = t('action.viewAll');
 				actionLabelEn={viewAll.en}
 			/>
 
-			<div class="mt-8 grid gap-6 sm:mt-10 md:grid-cols-2">
-				{
-					featuredProjects.map((project) => (
-						<ProjectCard
-							href={`/projects/${project.id}`}
-							title={project.data.title}
-							titleEn={projectsEn[project.id]?.title}
-							description={project.data.description}
-							descriptionEn={projectsEn[project.id]?.description}
-							status={project.data.status}
-							tags={project.data.tags}
-							date={project.data.date}
-						/>
-					))
-				}
+			<!-- 核心双栏布局 -->
+			<div class="mt-8 sm:mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
+				
+				<!-- 左侧：2.5D 系统拓扑图（pointer-events-none 防止拦截点击） -->
+				<div class="lg:col-span-5 relative pointer-events-none">
+					<div class="relative w-full h-[380px] sm:h-[460px] flex items-center justify-center" style="perspective: 1200px; transform-style: preserve-3d;">
+						<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%);"></div>
+
+						<div class="relative w-full h-full max-w-[500px] max-h-[500px]" style="transform: rotateX(55deg) rotateZ(-35deg); transform-style: preserve-3d;">
+							
+							<svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 500">
+								<defs>
+									<linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+										<stop offset="0%" stop-color="#93c5fd" />
+										<stop offset="100%" stop-color="#3b82f6" />
+									</linearGradient>
+									<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+										<path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+									</marker>
+								</defs>
+								<path class="connector" d="M 125 125 C 170 170, 200 200, 238 238" marker-end="url(#arrow)" />
+								<path class="connector" d="M 375 125 C 330 170, 300 200, 262 238" marker-end="url(#arrow)" />
+								<path class="connector" d="M 125 375 C 170 330, 200 300, 238 262" marker-end="url(#arrow)" />
+								<path class="connector" d="M 375 375 C 330 330, 300 300, 262 262" marker-end="url(#arrow)" />
+								<path class="connector" d="M 262 250 C 320 250, 380 250, 438 250" marker-end="url(#arrow)" />
+							</svg>
+
+							<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+								<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center border border-blue-300 shadow-[0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(59,130,246,0.2)]">
+									<span class="text-white font-extrabold text-2xl sm:text-3xl tracking-widest drop-shadow-md">AI</span>
+								</div>
+							</div>
+
+							<div class="absolute left-[25%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
+								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+									<span class="text-xl">🤖</span>
+									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Agent</span>
+								</div>
+							</div>
+							<div class="absolute left-[75%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
+								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+									<span class="text-xl">🔀</span>
+									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Workflow</span>
+								</div>
+							</div>
+							<div class="absolute left-[25%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
+								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+									<span class="text-xl">🗄️</span>
+									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Data</span>
+								</div>
+							</div>
+							<div class="absolute left-[75%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
+								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+									<span class="text-xl">⚙️</span>
+									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Automation</span>
+								</div>
+							</div>
+							<div class="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+								<div class="w-28 sm:w-32 rounded-xl bg-white shadow-lg border border-emerald-100 p-3 flex flex-col items-center gap-1">
+									<span class="text-xl">🌐</span>
+									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Real World</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="text-center mt-4">
+						<span class="font-mono text-[10px] uppercase tracking-widest text-mybo-faint">System Architecture</span>
+					</div>
+				</div>
+
+				<!-- 右侧：项目列表 -->
+				<div class="lg:col-span-7">
+					<div class="divide-y divide-mybo-line border-t border-b border-mybo-line">
+						{featuredProjects.map((project) => {
+							const titleEn = projectsEn[project.id]?.title || project.data.title;
+							const descEn = projectsEn[project.id]?.description || project.data.description;
+							const isActive = project.data.status === 'active';
+							
+							return (
+								<article class="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 transition-colors hover:bg-mybo-surface-2/50">
+									<a href={`/projects/${project.id}`} class="absolute inset-0 z-10" aria-label={project.data.title}></a>
+									
+									<div class="flex-1 min-w-0 relative z-20 pointer-events-none">
+										<div class="flex items-center gap-3 font-mono text-[11px] text-mybo-faint mb-2">
+											<span class={`inline-flex items-center gap-1.5 rounded-md border px-1.5 py-0.5 font-semibold ${isActive ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-blue-200 bg-blue-50 text-blue-700'}`}>
+												{isActive && <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>}
+												{isActive ? '进行中' : '已完成'}
+											</span>
+											<span>{project.data.date.toLocaleDateString('zh-CN')}</span>
+										</div>
+										
+										<h3 
+											class="text-[17px] sm:text-[19px] font-bold tracking-tight text-mybo-fg truncate group-hover:text-mybo-muted transition-colors"
+											data-zh={project.data.title}
+											data-en={titleEn}
+										>
+											{project.data.title}
+										</h3>
+										
+										<!-- 描述：从 line-clamp-1 改成 line-clamp-2，字号 13.5px -->
+										<p 
+											class="mt-1.5 line-clamp-2 text-[13.5px] leading-[1.65] text-mybo-muted"
+											data-zh={project.data.description}
+											data-en={descEn}
+										>
+											{project.data.description}
+										</p>
+										
+										<div class="flex flex-wrap gap-1.5 mt-3">
+											{project.data.tags.map((tag) => (
+												<span class="rounded-md bg-mybo-surface-2 px-2 py-[3px] font-mono text-[11px] text-mybo-muted">#{tag}</span>
+											))}
+										</div>
+									</div>
+									
+									<div class="hidden sm:block flex-none text-mybo-line-strong group-hover:text-mybo-fg group-hover:translate-x-1 transition-all relative z-20 pointer-events-none">
+										<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+									</div>
+								</article>
+							);
+						})}
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</section>
@@ -321,3 +429,23 @@ const viewAll = t('action.viewAll');
 		</div>
 	</section>
 </Layout>
+
+<style>
+	.connector {
+		stroke: url(#line-grad);
+		stroke-width: 2;
+		fill: none;
+		stroke-linecap: round;
+		stroke-dasharray: 6 6;
+		animation: dash 20s linear infinite;
+		filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.5));
+	}
+	@keyframes dash {
+		to { stroke-dashoffset: -200; }
+	}
+	@media (max-width: 1024px) {
+		.perspective-container {
+			transform: scale(0.9);
+		}
+	}
+</style>

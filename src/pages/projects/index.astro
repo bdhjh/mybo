@@ -31,7 +31,8 @@ const meta = countLabel('project', projects.length);
 			metaEn={meta.en}
 		/>
 
-		<div class="grid gap-6 pb-6 md:grid-cols-2">
+		<!-- 改成三列布局：lg 下 3 列，md 下 2 列，小屏单列 -->
+		<div class="grid gap-6 pb-6 md:grid-cols-2 lg:grid-cols-3">
 			{
 				orderedProjects.map((project) => (
 					<ProjectCard
