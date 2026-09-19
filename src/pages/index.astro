@@ -188,7 +188,7 @@ const viewAll = t('action.viewAll');
 		</div>
 	</section>
 
-	<!-- FEATURED PROJECTS (优化版：左图右列表) -->
+	<!-- FEATURED PROJECTS (桌面端 2.5D + 移动端简化版) -->
 	<section id="projects" class="border-t border-mybo-line py-14 sm:py-20">
 		<div class="shell">
 			<SectionHeading
@@ -201,73 +201,135 @@ const viewAll = t('action.viewAll');
 				actionLabelEn={viewAll.en}
 			/>
 
-			<!-- 核心双栏布局 -->
-			<div class="mt-8 sm:mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
+			<div class="mt-8 sm:mt-12 grid gap-10 lg:grid-cols-12 lg:gap-16 lg:items-center">
 				
-				<!-- 左侧：2.5D 系统拓扑图（pointer-events-none 防止拦截点击） -->
+				<!-- 左侧：系统架构可视化 -->
 				<div class="lg:col-span-5 relative pointer-events-none">
-					<div class="relative w-full h-[380px] sm:h-[460px] flex items-center justify-center" style="perspective: 1200px; transform-style: preserve-3d;">
-						<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%);"></div>
-
-						<div class="relative w-full h-full max-w-[500px] max-h-[500px]" style="transform: rotateX(55deg) rotateZ(-35deg); transform-style: preserve-3d;">
-							
-							<svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 500">
-								<defs>
-									<linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-										<stop offset="0%" stop-color="#93c5fd" />
-										<stop offset="100%" stop-color="#3b82f6" />
-									</linearGradient>
-									<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-										<path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
-									</marker>
-								</defs>
-								<path class="connector" d="M 125 125 C 170 170, 200 200, 238 238" marker-end="url(#arrow)" />
-								<path class="connector" d="M 375 125 C 330 170, 300 200, 262 238" marker-end="url(#arrow)" />
-								<path class="connector" d="M 125 375 C 170 330, 200 300, 238 262" marker-end="url(#arrow)" />
-								<path class="connector" d="M 375 375 C 330 330, 300 300, 262 262" marker-end="url(#arrow)" />
-								<path class="connector" d="M 262 250 C 320 250, 380 250, 438 250" marker-end="url(#arrow)" />
-							</svg>
-
-							<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
-								<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center border border-blue-300 shadow-[0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(59,130,246,0.2)]">
-									<span class="text-white font-extrabold text-2xl sm:text-3xl tracking-widest drop-shadow-md">AI</span>
-								</div>
+					
+					<!-- ========== 移动端简化版（< lg 显示） ========== -->
+					<div class="lg:hidden">
+						<div class="relative overflow-hidden rounded-mybo border border-mybo-line bg-gradient-to-br from-white to-[#f2f2f3] p-5">
+							<!-- 网格背景 -->
+							<div
+								class="pointer-events-none absolute inset-0 opacity-50"
+								style="background-image:linear-gradient(to right,rgba(24,24,27,0.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(24,24,27,0.05) 1px,transparent 1px);background-size:20px 20px;"
+							>
 							</div>
 
-							<div class="absolute left-[25%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
-								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
-									<span class="text-xl">🤖</span>
-									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Agent</span>
+							<div class="relative z-10 flex flex-col items-center gap-4">
+								<!-- AI 核心 -->
+								<div class="flex items-center justify-center">
+									<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center border border-blue-300 shadow-[0_0_20px_rgba(59,130,246,0.35)]">
+										<span class="text-white font-extrabold text-xl tracking-widest drop-shadow-md">AI</span>
+									</div>
+								</div>
+
+								<!-- 箭头 -->
+								<div class="h-4 w-px bg-gradient-to-b from-blue-300 to-blue-500"></div>
+
+								<!-- 四个节点：2x2 网格 -->
+								<div class="grid grid-cols-2 gap-2.5 w-full">
+									<div class="rounded-lg bg-white border border-blue-100 p-2.5 flex items-center gap-2 shadow-sm">
+										<span class="text-base">🤖</span>
+										<span class="font-mono text-[11px] font-semibold text-zinc-700">Agent</span>
+									</div>
+									<div class="rounded-lg bg-white border border-blue-100 p-2.5 flex items-center gap-2 shadow-sm">
+										<span class="text-base">🔀</span>
+										<span class="font-mono text-[11px] font-semibold text-zinc-700">Workflow</span>
+									</div>
+									<div class="rounded-lg bg-white border border-blue-100 p-2.5 flex items-center gap-2 shadow-sm">
+										<span class="text-base">🗄️</span>
+										<span class="font-mono text-[11px] font-semibold text-zinc-700">Data</span>
+									</div>
+									<div class="rounded-lg bg-white border border-blue-100 p-2.5 flex items-center gap-2 shadow-sm">
+										<span class="text-base">⚙️</span>
+										<span class="font-mono text-[11px] font-semibold text-zinc-700">Automation</span>
+									</div>
+								</div>
+
+								<!-- 箭头 -->
+								<div class="h-4 w-px bg-gradient-to-b from-blue-500 to-emerald-500"></div>
+
+								<!-- Real World -->
+								<div class="rounded-lg bg-white border border-emerald-200 px-4 py-2 flex items-center gap-2 shadow-sm">
+									<span class="text-base">🌐</span>
+									<span class="font-mono text-[11px] font-semibold text-zinc-700">Real World</span>
 								</div>
 							</div>
-							<div class="absolute left-[75%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
-								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
-									<span class="text-xl">🔀</span>
-									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Workflow</span>
-								</div>
-							</div>
-							<div class="absolute left-[25%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
-								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
-									<span class="text-xl">🗄️</span>
-									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Data</span>
-								</div>
-							</div>
-							<div class="absolute left-[75%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
-								<div class="w-24 sm:w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
-									<span class="text-xl">⚙️</span>
-									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Automation</span>
-								</div>
-							</div>
-							<div class="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-								<div class="w-28 sm:w-32 rounded-xl bg-white shadow-lg border border-emerald-100 p-3 flex flex-col items-center gap-1">
-									<span class="text-xl">🌐</span>
-									<span class="text-[11px] sm:text-[12px] font-semibold text-zinc-700 tracking-wider">Real World</span>
-								</div>
+
+							<!-- 底部注解 -->
+							<div class="relative z-10 mt-4 flex items-center justify-between border-t border-mybo-line pt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-mybo-faint">
+								<span>System Architecture</span>
+								<span>v2.0</span>
 							</div>
 						</div>
 					</div>
-					<div class="text-center mt-4">
-						<span class="font-mono text-[10px] uppercase tracking-widest text-mybo-faint">System Architecture</span>
+
+					<!-- ========== 桌面端 2.5D（lg 及以上显示） ========== -->
+					<div class="hidden lg:block">
+						<div class="relative w-full h-[460px] flex items-center justify-center" style="perspective: 1200px; transform-style: preserve-3d;">
+							<div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.08) 0%, transparent 70%);"></div>
+
+							<div class="relative w-full h-full max-w-[500px] max-h-[500px]" style="transform: rotateX(55deg) rotateZ(-35deg); transform-style: preserve-3d;">
+								
+								<svg class="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 500">
+									<defs>
+										<linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+											<stop offset="0%" stop-color="#93c5fd" />
+											<stop offset="100%" stop-color="#3b82f6" />
+										</linearGradient>
+										<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+											<path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+										</marker>
+									</defs>
+									<path class="connector" d="M 125 125 C 170 170, 200 200, 238 238" marker-end="url(#arrow)" />
+									<path class="connector" d="M 375 125 C 330 170, 300 200, 262 238" marker-end="url(#arrow)" />
+									<path class="connector" d="M 125 375 C 170 330, 200 300, 238 262" marker-end="url(#arrow)" />
+									<path class="connector" d="M 375 375 C 330 330, 300 300, 262 262" marker-end="url(#arrow)" />
+									<path class="connector" d="M 262 250 C 320 250, 380 250, 438 250" marker-end="url(#arrow)" />
+								</svg>
+
+								<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30">
+									<div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center border border-blue-300 shadow-[0_0_30px_rgba(59,130,246,0.4),0_0_60px_rgba(59,130,246,0.2)]">
+										<span class="text-white font-extrabold text-3xl tracking-widest drop-shadow-md">AI</span>
+									</div>
+								</div>
+
+								<div class="absolute left-[25%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
+									<div class="w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+										<span class="text-xl">🤖</span>
+										<span class="text-[12px] font-semibold text-zinc-700 tracking-wider">Agent</span>
+									</div>
+								</div>
+								<div class="absolute left-[75%] top-[25%] -translate-x-1/2 -translate-y-1/2 z-20">
+									<div class="w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+										<span class="text-xl">🔀</span>
+										<span class="text-[12px] font-semibold text-zinc-700 tracking-wider">Workflow</span>
+									</div>
+								</div>
+								<div class="absolute left-[25%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
+									<div class="w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+										<span class="text-xl">🗄️</span>
+										<span class="text-[12px] font-semibold text-zinc-700 tracking-wider">Data</span>
+									</div>
+								</div>
+								<div class="absolute left-[75%] top-[75%] -translate-x-1/2 -translate-y-1/2 z-20">
+									<div class="w-28 rounded-xl bg-white shadow-lg border border-blue-100 p-3 flex flex-col items-center gap-1">
+										<span class="text-xl">⚙️</span>
+										<span class="text-[12px] font-semibold text-zinc-700 tracking-wider">Automation</span>
+									</div>
+								</div>
+								<div class="absolute left-[88%] top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+									<div class="w-32 rounded-xl bg-white shadow-lg border border-emerald-100 p-3 flex flex-col items-center gap-1">
+										<span class="text-xl">🌐</span>
+										<span class="text-[12px] font-semibold text-zinc-700 tracking-wider">Real World</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="text-center mt-4">
+							<span class="font-mono text-[10px] uppercase tracking-widest text-mybo-faint">System Architecture</span>
+						</div>
 					</div>
 				</div>
 
@@ -300,7 +362,6 @@ const viewAll = t('action.viewAll');
 											{project.data.title}
 										</h3>
 										
-										<!-- 描述：从 line-clamp-1 改成 line-clamp-2，字号 13.5px -->
 										<p 
 											class="mt-1.5 line-clamp-2 text-[13.5px] leading-[1.65] text-mybo-muted"
 											data-zh={project.data.description}
@@ -442,10 +503,5 @@ const viewAll = t('action.viewAll');
 	}
 	@keyframes dash {
 		to { stroke-dashoffset: -200; }
-	}
-	@media (max-width: 1024px) {
-		.perspective-container {
-			transform: scale(0.9);
-		}
 	}
 </style>
