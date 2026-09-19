@@ -332,19 +332,70 @@ html[data-lang='en']:not(.lang-ready) [data-panel='zh'] {
   display: none;
 }
 
-/* 窄屏下导航需要横向容纳 logo + 菜单 + 语言开关，允许滚动但隐藏滚动条 */
+/* 窄屏下导航可以横向滑动，隐藏滚动条避免破坏排版 */
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* 小屏收紧两侧留白，给放大的 logo 和语言开关留出空间 */
+/* ---------- 6) 移动端适配 ---------- */
+
+/* 小屏收紧两侧留白；带安全区时（全面屏横屏 / 刘海）自动让开 */
 @media (max-width: 480px) {
   .shell {
-    padding-inline: 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
   }
 }
+
+/* 锚点跳转时避开吸顶导航（#projects / #experiments / #notes / #about） */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* 全面屏：底部让开手势条 */
+footer {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* 正文：长英文单词 / URL 不撑破容器；宽表格在窄屏内单独横向滚动 */
+.prose-mybo {
+  overflow-wrap: break-word;
+}
+
+.prose-mybo table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 触屏设备：放大语言开关的点击区域（眼睛看着小，手指要够得着） */
+@media (max-width: 640px) {
+  .lang-switch button {
+    padding: 5px 10px;
+    font-size: 11.5px;
+  }
+}
+
+/* 触屏设备：卡片不做 hover 位移，避免点完停在"浮起"状态 */
+@media (hover: none) {
+  .group:hover,
+  a:hover {
+    transform: none;
+  }
+
+  .lang-switch button:hover {
+    color: var(--color-mybo-faint);
+  }
+
+  .lang-switch button[data-active='true']:hover {
+    color: var(--color-mybo-fg);
+  }
+}
+

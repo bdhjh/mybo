@@ -45,7 +45,7 @@ const dateLabel = t('label.date');
 	]}
 >
 	<div
-		class="relative flex aspect-video w-full items-center justify-center overflow-hidden border-b border-mybo-line bg-gradient-to-br from-[#fafafa] via-[#eeeeef] to-[#e6e6e8] p-6"
+		class="relative flex aspect-video w-full items-center justify-center overflow-hidden border-b border-mybo-line bg-gradient-to-br from-[#fafafa] via-[#eeeeef] to-[#e6e6e8] p-4 sm:p-6"
 	>
 		<div
 			class="pointer-events-none absolute inset-0"
@@ -103,7 +103,7 @@ const dateLabel = t('label.date');
 			<StatusBadge status={status} kind="project" />
 		</div>
 
-		<h3 class="mt-3.5 text-[19px] font-bold tracking-[-0.02em] text-mybo-fg transition-colors duration-200 group-hover:text-mybo-muted">
+		<h3 class="mt-3.5 text-[17.5px] font-bold tracking-[-0.02em] text-mybo-fg transition-colors duration-200 group-hover:text-mybo-muted sm:text-[19px]">
 			<a href={href}>
 				<span class="absolute inset-0" aria-hidden="true"></span>
 				<span data-zh={title} data-en={titleEn}>{title}</span>

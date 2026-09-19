@@ -24,7 +24,9 @@ const {
 } = Astro.props;
 ---
 
-<div class:list={['flex flex-wrap items-end justify-between gap-6', className]}>
+<div
+	class:list={['flex flex-wrap items-end justify-between gap-4 sm:gap-6', className]}
+>
 	<div>
 		{
 			eyebrow && (
@@ -35,7 +37,7 @@ const {
 		}
 		<h2
 			class:list={[
-				'm-0 text-2xl font-bold tracking-tight text-mybo-fg sm:text-[28px]',
+				'm-0 text-[21px] font-bold tracking-tight text-mybo-fg sm:text-[28px]',
 				eyebrow ? 'mt-1.5' : '',
 			]}
 			data-zh={title}

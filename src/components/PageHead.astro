@@ -39,11 +39,11 @@ const home = t('nav.home');
 const breadcrumbLabel = t('label.breadcrumb');
 ---
 
-<header class:list={['pt-10 pb-8 sm:pt-14', className]}>
+<header class:list={['pt-8 pb-6 sm:pt-14 sm:pb-8', className]}>
 	{
 		crumbs.length > 0 && (
 			<nav
-				class="mb-8 flex flex-wrap items-center gap-2 font-mono text-[11.5px] text-mybo-faint"
+				class="mb-6 flex flex-wrap items-center gap-2 font-mono text-[11.5px] text-mybo-faint sm:mb-8"
 				aria-label={`${breadcrumbLabel.zh} / ${breadcrumbLabel.en}`}
 			>
 				<a
@@ -83,8 +83,8 @@ const breadcrumbLabel = t('label.breadcrumb');
 
 	<h1
 		class:list={[
-			'm-0 text-[34px] font-extrabold leading-[1.12] tracking-[-0.03em] text-mybo-fg sm:text-[44px]',
-			eyebrow ? 'mt-4' : '',
+			'm-0 text-[27px] font-extrabold leading-[1.14] tracking-[-0.03em] text-mybo-fg sm:text-[44px] sm:leading-[1.12]',
+			eyebrow ? 'mt-3.5 sm:mt-4' : '',
 		]}
 		data-zh={title}
 		data-en={titleEn}
@@ -95,7 +95,7 @@ const breadcrumbLabel = t('label.breadcrumb');
 	{
 		lede && (
 			<p
-				class="m-0 mt-4 max-w-[600px] text-[16px] leading-[1.7] text-mybo-muted"
+				class="m-0 mt-3.5 max-w-[600px] text-[15.5px] leading-[1.7] text-mybo-muted sm:mt-4 sm:text-[16px]"
 				data-zh={lede}
 				data-en={ledeEn}
 			>

@@ -32,11 +32,11 @@ const viewAll = t('action.viewAll');
 
 <Layout>
 	<!-- HERO -->
-	<section class="shell pt-16 pb-20 sm:pt-24 sm:pb-28">
-		<div class="grid items-center gap-12 lg:grid-cols-12">
+	<section class="shell pt-10 pb-14 sm:pt-24 sm:pb-28">
+		<div class="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
 			<div class="lg:col-span-7">
 				<span
-					class="inline-flex items-center gap-2 rounded-full border border-mybo-line bg-mybo-surface px-3 py-1 font-mono text-[11.5px] font-medium tracking-[0.1em] text-mybo-muted"
+					class="inline-flex items-center gap-2 rounded-full border border-mybo-line bg-mybo-surface px-3 py-1 font-mono text-[11px] font-medium tracking-[0.1em] text-mybo-muted sm:text-[11.5px]"
 				>
 					<span
 						class="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-emerald-500"
@@ -45,14 +45,14 @@ const viewAll = t('action.viewAll');
 				</span>
 
 				<h1
-					class="mt-6 text-[38px] font-extrabold leading-[1.08] tracking-[-0.03em] text-mybo-fg sm:text-[50px] lg:text-[56px]"
+					class="mt-5 text-[32px] font-extrabold leading-[1.1] tracking-[-0.03em] text-mybo-fg sm:mt-6 sm:text-[50px] sm:leading-[1.08] lg:text-[56px]"
 					data-zh="用 AI 构建系统。"
 					data-en="Build systems with AI."
 				>
 					用 AI 构建系统。
 				</h1>
 				<p
-					class="mt-2 text-[24px] font-semibold leading-[1.2] tracking-[-0.02em] text-mybo-faint sm:text-[30px]"
+					class="mt-2 text-[19px] font-semibold leading-[1.25] tracking-[-0.02em] text-mybo-faint sm:text-[30px] sm:leading-[1.2]"
 					data-zh="自动化真实世界。"
 					data-en="Automate the real world."
 				>
@@ -60,17 +60,17 @@ const viewAll = t('action.viewAll');
 				</p>
 
 				<p
-					class="mt-6 max-w-xl text-[16px] leading-[1.75] text-mybo-muted sm:text-[17px]"
+					class="mt-5 max-w-xl text-[15.5px] leading-[1.75] text-mybo-muted sm:mt-6 sm:text-[17px]"
 					data-zh="探索 AI、Automation、Agent 与真实工作流，把实验变成可以长期使用的系统。"
 					data-en="Exploring AI, automation, agents, and real workflows — turning experiments into systems that last."
 				>
 					探索 AI、Automation、Agent 与真实工作流，把实验变成可以长期使用的系统。
 				</p>
 
-				<div class="mt-8 flex flex-wrap items-center gap-3">
+				<div class="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
 					<a
 						href="/projects"
-						class="inline-flex items-center justify-center rounded-mybo-md bg-mybo-fg px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#27272a] hover:shadow-[0_8px_20px_-8px_rgba(24,24,27,0.5)] active:translate-y-0"
+						class="inline-flex items-center justify-center rounded-mybo-md bg-mybo-fg px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-px hover:bg-[#27272a] hover:shadow-[0_8px_20px_-8px_rgba(24,24,27,0.5)] active:translate-y-0 sm:px-6"
 						data-zh="浏览项目"
 						data-en="Explore Projects"
 					>
@@ -78,7 +78,7 @@ const viewAll = t('action.viewAll');
 					</a>
 					<a
 						href="/experiments"
-						class="inline-flex items-center justify-center rounded-mybo-md border border-mybo-line bg-mybo-surface px-6 py-3 text-sm font-medium text-mybo-fg-2 transition-all duration-200 hover:-translate-y-px hover:border-mybo-line-strong hover:bg-mybo-surface-2 active:translate-y-0"
+						class="inline-flex items-center justify-center rounded-mybo-md border border-mybo-line bg-mybo-surface px-5 py-3 text-sm font-medium text-mybo-fg-2 transition-all duration-200 hover:-translate-y-px hover:border-mybo-line-strong hover:bg-mybo-surface-2 active:translate-y-0 sm:px-6"
 						data-zh="实验记录"
 						data-en="Experiments"
 					>
@@ -89,7 +89,7 @@ const viewAll = t('action.viewAll');
 
 			<div class="lg:col-span-5">
 				<div
-					class="relative overflow-hidden rounded-mybo border border-mybo-line bg-gradient-to-br from-white to-[#f2f2f3] p-7 shadow-[0_1px_2px_rgba(24,24,27,0.04)]"
+					class="relative overflow-hidden rounded-mybo border border-mybo-line bg-gradient-to-br from-white to-[#f2f2f3] p-5 shadow-[0_1px_2px_rgba(24,24,27,0.04)] sm:p-7"
 				>
 					<div
 						class="pointer-events-none absolute inset-0"
@@ -98,36 +98,36 @@ const viewAll = t('action.viewAll');
 					</div>
 
 					<div
-						class="relative z-10 flex flex-col items-center py-5 font-mono text-[12px]"
+						class="relative z-10 flex flex-col items-center py-4 font-mono text-[11px] sm:py-5 sm:text-[12px]"
 					>
-						<div class="flex w-full items-center justify-center gap-3">
+						<div class="flex w-full items-center justify-center gap-2.5 sm:gap-3">
 							<div
-								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-bold text-mybo-fg shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-4 py-2.5 font-bold text-mybo-fg shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-5"
 							>
 								AI
 							</div>
 							<span class="text-[#c4c4c8]" aria-hidden="true">→</span>
 							<div
-								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-4 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-5"
 							>
 								Workflow
 							</div>
 						</div>
 
-						<div class="flex items-center gap-14 py-3">
+						<div class="flex items-center gap-8 py-3 sm:gap-14">
 							<span class="h-6 w-px bg-mybo-line-strong"></span>
 							<span class="h-6 w-px bg-mybo-line-strong"></span>
 						</div>
 
-						<div class="flex w-full items-center justify-center gap-3">
+						<div class="flex w-full items-center justify-center gap-2.5 sm:gap-3">
 							<div
-								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-4 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-5"
 							>
 								Agent
 							</div>
 							<span class="text-[#c4c4c8]" aria-hidden="true">→</span>
 							<div
-								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-5 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+								class="rounded-mybo-md border border-mybo-line-strong bg-mybo-surface px-4 py-2.5 font-medium text-mybo-fg-2 shadow-[0_1px_2px_rgba(24,24,27,0.05)] transition-transform duration-200 hover:-translate-y-0.5 sm:px-5"
 							>
 								Automation
 							</div>
@@ -138,7 +138,7 @@ const viewAll = t('action.viewAll');
 						></span>
 
 						<div
-							class="rounded-mybo-md border border-mybo-fg bg-mybo-fg px-6 py-3 font-bold text-white shadow-[0_6px_16px_-10px_rgba(24,24,27,0.6)]"
+							class="rounded-mybo-md border border-mybo-fg bg-mybo-fg px-4 py-2.5 font-bold text-white shadow-[0_6px_16px_-10px_rgba(24,24,27,0.6)] sm:px-6 sm:py-3"
 						>
 							Real World System
 						</div>
@@ -156,7 +156,7 @@ const viewAll = t('action.viewAll');
 	</section>
 
 	<!-- NOW BUILDING -->
-	<section class="border-t border-mybo-line bg-mybo-surface py-14">
+	<section class="border-t border-mybo-line bg-mybo-surface py-12 sm:py-14">
 		<div class="shell">
 			<div
 				class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
@@ -180,7 +180,7 @@ const viewAll = t('action.viewAll');
 				</div>
 			</div>
 			<p
-				class="mt-5 max-w-3xl leading-[1.75] text-mybo-muted"
+				class="mt-4 max-w-3xl text-[15.5px] leading-[1.75] text-mybo-muted sm:mt-5 sm:text-base"
 				data-zh="构建与测试 Agent 和 Workflow，使其深入真实工作的商业场景与效率闭环。"
 				data-en="Building and testing agents and workflows until they reach real business scenarios and close the efficiency loop."
 			>
@@ -190,7 +190,7 @@ const viewAll = t('action.viewAll');
 	</section>
 
 	<!-- FEATURED PROJECTS -->
-	<section id="projects" class="border-t border-mybo-line py-20">
+	<section id="projects" class="border-t border-mybo-line py-14 sm:py-20">
 		<div class="shell">
 			<SectionHeading
 				eyebrow="精选项目"
@@ -202,7 +202,7 @@ const viewAll = t('action.viewAll');
 				actionLabelEn={viewAll.en}
 			/>
 
-			<div class="mt-10 grid gap-6 md:grid-cols-2">
+			<div class="mt-8 grid gap-6 sm:mt-10 md:grid-cols-2">
 				{
 					featuredProjects.map((project) => (
 						<ProjectCard
@@ -222,9 +222,9 @@ const viewAll = t('action.viewAll');
 	</section>
 
 	<!-- EXPERIMENTS & NOTES -->
-	<section class="border-t border-mybo-line bg-mybo-surface-2 py-20">
+	<section class="border-t border-mybo-line bg-mybo-surface-2 py-14 sm:py-20">
 		<div class="shell">
-			<div class="grid gap-12 lg:grid-cols-2 lg:gap-14">
+			<div class="grid gap-10 lg:grid-cols-2 lg:gap-14">
 				<div id="experiments">
 					<SectionHeading
 						eyebrow="实验室"
@@ -237,7 +237,7 @@ const viewAll = t('action.viewAll');
 					/>
 
 					<div
-						class="mt-6 divide-y divide-mybo-line border-t border-b border-mybo-line"
+						class="mt-5 divide-y divide-mybo-line border-t border-b border-mybo-line sm:mt-6"
 					>
 						{
 							latestExperiments.map((experiment, idx) => (
@@ -269,7 +269,7 @@ const viewAll = t('action.viewAll');
 					/>
 
 					<div
-						class="mt-6 divide-y divide-mybo-line border-t border-b border-mybo-line"
+						class="mt-5 divide-y divide-mybo-line border-t border-b border-mybo-line sm:mt-6"
 					>
 						{
 							latestNotes.map((note, idx) => (
@@ -292,7 +292,10 @@ const viewAll = t('action.viewAll');
 	</section>
 
 	<!-- OPERATING SYSTEM / PHILOSOPHY -->
-	<section id="about" class="border-t border-mybo-line bg-mybo-surface py-24">
+	<section
+		id="about"
+		class="border-t border-mybo-line bg-mybo-surface py-16 sm:py-24"
+	>
 		<div class="shell text-center">
 			<p
 				class="eyebrow m-0"
@@ -303,7 +306,7 @@ const viewAll = t('action.viewAll');
 			</p>
 
 			<h2
-				class="m-0 mt-4 font-mono text-[22px] font-bold tracking-[0.06em] text-mybo-fg sm:text-[28px]"
+				class="m-0 mt-4 font-mono text-[17px] font-bold tracking-[0.04em] text-mybo-fg sm:text-[28px] sm:tracking-[0.06em]"
 			>
 				BUILD → LEARN → SHARE → ITERATE
 			</h2>

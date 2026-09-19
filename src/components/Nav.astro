@@ -2,6 +2,11 @@
 import LangToggle from './LangToggle.astro';
 
 // 顶部导航：Logo + 主菜单（带当前页高亮）+ 中英文切换
+//
+// 布局策略：
+//   手机（<640px）→ 两行：第一行 Logo + 语言开关，第二行菜单独占一行
+//   桌面（≥640px）→ 一行：Logo 左，菜单与语言开关靠右
+// 用 flex-wrap + order 切换，不额外写媒体查询、不加汉堡菜单 JS。
 const pathname = Astro.url.pathname;
 
 // zh 为默认渲染语言，en 由前端脚本替换（见 Layout.astro）
@@ -19,10 +24,12 @@ const isActive = (href: string) =>
 <header
 	class="sticky top-0 z-50 border-b border-mybo-line bg-white/80 backdrop-blur-md"
 >
-	<div class="shell flex h-16 items-center justify-between gap-3 sm:gap-6">
+	<div
+		class="shell flex flex-wrap items-center justify-between gap-x-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0"
+	>
 		<a
 			href="/"
-			class="group flex flex-none items-center gap-2.5 font-mono text-[17px] font-bold tracking-[0.08em] text-mybo-fg sm:text-[18px]"
+			class="group order-1 flex flex-none items-center gap-2.5 font-mono text-[17px] font-bold leading-none tracking-[0.08em] text-mybo-fg sm:text-[18px]"
 		>
 			<span
 				class="inline-block h-3 w-3 flex-none rounded-[3px] bg-mybo-fg transition-transform duration-200 group-hover:scale-125 sm:h-3.5 sm:w-3.5"
@@ -30,34 +37,37 @@ const isActive = (href: string) =>
 			MYBO
 		</a>
 
-		<div
-			class="no-scrollbar flex min-w-0 items-center gap-3 overflow-x-auto sm:gap-5 sm:overflow-visible"
-		>
-			<nav class="flex items-center gap-3 sm:gap-7">
-				{
-					navItems.map((item) => (
-						<a
-							href={item.href}
-							data-zh={item.zh}
-							data-en={item.en}
-							class:list={[
-								'whitespace-nowrap border-b-2 border-transparent pb-0.5 text-[12.5px] transition-colors duration-200 sm:text-sm',
-								isActive(item.href)
-									? 'border-mybo-fg font-medium text-mybo-fg'
-									: 'text-mybo-muted hover:border-mybo-line-strong hover:text-mybo-fg',
-							]}
-						>
-							{item.zh}
-						</a>
-					))
-				}
-			</nav>
+		<LangToggle class="order-2 sm:order-3" />
 
-			<span
-				class="hidden h-4 w-px flex-none bg-mybo-line sm:block"
-				aria-hidden="true"></span>
+		<!-- 菜单：手机上换到第二行并占满整行，必要时可横向滑动 -->
+		<div class="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
+			<div class="flex items-center gap-3 sm:justify-end sm:gap-5">
+				<nav
+					class="no-scrollbar flex min-w-0 flex-1 items-center gap-4 overflow-x-auto sm:flex-none sm:gap-7 sm:overflow-visible"
+				>
+					{
+						navItems.map((item) => (
+							<a
+								href={item.href}
+								data-zh={item.zh}
+								data-en={item.en}
+								class:list={[
+									'whitespace-nowrap border-b-2 border-transparent pt-1 pb-1 text-[13px] leading-snug transition-colors duration-200 sm:pt-0 sm:pb-0.5 sm:text-sm',
+									isActive(item.href)
+										? 'border-mybo-fg font-medium text-mybo-fg'
+										: 'text-mybo-muted hover:border-mybo-line-strong hover:text-mybo-fg',
+								]}
+							>
+								{item.zh}
+							</a>
+						))
+					}
+				</nav>
 
-			<LangToggle />
+				<span
+					class="hidden h-4 w-px flex-none bg-mybo-line sm:block"
+					aria-hidden="true"></span>
+			</div>
 		</div>
 	</div>
 </header>

@@ -47,7 +47,7 @@ const crumb = t('nav.lab');
 		/>
 
 		<div
-			class="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-mybo-line pt-6"
+			class="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-mybo-line pt-5 sm:pt-6"
 		>
 			<StatusBadge status={experiment.data.status} kind="experiment" />
 			<span
@@ -69,7 +69,7 @@ const crumb = t('nav.lab');
 		</div>
 
 		<!-- 正文：中文 / 英文两个面板，切换语言时整体显隐 -->
-		<article class="mt-10 border-t border-mybo-line pt-10">
+		<article class="mt-8 border-t border-mybo-line pt-8 sm:mt-10 sm:pt-10">
 			<div class="prose-mybo max-w-[760px]" data-panel="zh">
 				<Content />
 			</div>
@@ -87,7 +87,7 @@ const crumb = t('nav.lab');
 			}
 		</article>
 
-		<div class="mt-14 border-t border-mybo-line pt-8">
+		<div class="mt-10 border-t border-mybo-line pt-8 sm:mt-14">
 			<a
 				href="/experiments"
 				class="group inline-flex items-center gap-2 font-mono text-[12px] text-mybo-muted transition-colors duration-200 hover:text-mybo-fg"
