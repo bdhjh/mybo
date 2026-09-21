@@ -1,6 +1,6 @@
 ---
-title: "AI Research Assistant"
-description: "我的 AI 研究助手项目"
+title: "MyBo 搭建实现说明"
+description: "记录 MyBo 从技术选型到部署的完整实现过程"
 date: 2026-09-19
 status: "completed"
 tags: ["AI", "Agent"]
