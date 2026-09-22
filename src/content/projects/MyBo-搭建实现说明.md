@@ -26,10 +26,10 @@ MyBo 的技术本质可以用一句话说清：
 具体表现为三件事：
 
 1. **新增内容 = 新增一个 md 文件**，不碰任何页面代码，路由和列表自动出现。
-2. **构建产物只有 8 个 HTML + 1 个 CSS**，没有 JS chunk（整站脚本都是内联的，没有岛屿组件）。
+2. **构建产物是 N 个 HTML + 1 个 CSS**（N = 8 个固定页面 + 内容条目数），没有 JS chunk（整站脚本都是内联的，没有岛屿组件）。
 3. **视觉全部走设计令牌**（`@theme` 里的 `--color-mybo-*`），改风格是改一组变量，不是逐页改 class。
 
-整站目前 8 个路由、3 个内容集合、12 个组件、约 40 个源文件。
+整站目前 8 个路由定义、3 个内容集合、12 个组件、约 40 个源文件；内容当前是 3 个项目 / 1 个实验 / 1 篇笔记，因此构建出 10 个 HTML。
 
 ---
 
@@ -100,10 +100,11 @@ b522c28  "Initial commit from Astro"          ← 第 1 步：脚手架初始化
 ```
 D:\Projects\mybo\
 ├── public/
-│   ├── favicon.svg / favicon.ico        静态直出资源
+│   ├── logo.png                        导航品牌标（蓝→橙 MB monogram，透明底）
+│   ├── favicon.svg / favicon.ico / apple-touch-icon.png   静态直出资源
 ├── src/
 │   ├── content/                         ── ① 内容层：只放 md
-│   │   ├── projects/mybo.md
+│   │   ├── projects/*.md               当前 3 篇（mybo / 搭建实现说明 / SZCCF 项目案例）
 │   │   ├── experiments/first-ai-automation.md
 │   │   └── notes/why-mybo.md
 │   ├── content.config.ts                ── 内容层的"表结构"定义
@@ -192,7 +193,7 @@ src/content/experiments/first-ai-automation.md → id = "first-ai-automation"
 
 ---
 
-## 6. 路由层：8 个路由，零手写路由表
+## 6. 路由层：8 个路由定义，零手写路由表
 
 | 路由 | 文件 | 类型 | 数据来源 |
 | --- | --- | --- | --- |
@@ -204,6 +205,8 @@ src/content/experiments/first-ai-automation.md → id = "first-ai-automation"
 | `/notes` | `pages/notes/index.astro` | 列表 | `notes` 全部，按日期倒序 |
 | `/notes/why-mybo` | `pages/notes/[slug].astro` | 详情 | 同上 |
 | `/about` | `pages/about.astro` | 页面 | 手写静态内容 |
+
+> 表里的详情页写的是**示例 URL**：`[slug]` 这类动态路由只有一份文件，但每条内容都会生成一个 URL。所以"8 个路由定义"和"构建产物 HTML 数量"是两件事——产物数量 = 8 个固定页面 + 内容条目数。
 
 ### 6.1 详情页的生成方式
 
@@ -231,7 +234,8 @@ const { Content } = await render(project);   // md 正文编译成可渲染组�
 ```ts
 const featuredProjects = projects
 	.filter((p) => p.data.featured)                              // 取精选
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 3);                                                // 最多 3 个
 
 const latestExperiments = [...experiments]
 	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -241,6 +245,8 @@ const latestNotes = [...notes].sort(...).slice(0, 3);
 ```
 
 注意 `[...experiments]` 先复制再排序——`getCollection` 返回的数组不应被原地改动，否则同一页面内多次排序会互相污染。
+
+三处都做了数量截断（首页三个区块各 3 条）：首页只负责"**表明这里有什么**"，完整列表交给 `/projects`、`/experiments`、`/notes`。项目再多，首页也不会被撑长——`featured: true` 是入口开关，日期决定谁排前面，第 4 个之后的精选只在列表页出现。
 
 首页当前包含 5 个区块：Hero（含架构示意图）→ Now Building → Featured Projects → Latest Experiments + Latest Notes → MyBo 运行系统。
 
@@ -252,8 +258,8 @@ const latestNotes = [...notes].sort(...).slice(0, 3);
 
 | 组件 | 职责 | 被谁使用 |
 | --- | --- | --- |
-| `Layout.astro` | 全站外壳：head、字体、Nav、Footer、i18n 脚本 | 全部 8 个页面 |
-| `Nav.astro` | 吸顶导航 + 当前页高亮 + 语言开关 | Layout |
+| `Layout.astro` | 全站外壳：head、字体、Nav、Footer、i18n 脚本 | 全部页面 |
+| `Nav.astro` | 吸顶导航：品牌标 + 菜单 + 当前页高亮 + 语言开关 | Layout |
 | `Footer.astro` | 版权 + 外链 | Layout |
 | `PageHead.astro` | 页头：面包屑 + 眉标 + H1 + 导语 + 计数 | 全部列表页与详情页 |
 | `SectionHeading.astro` | 区块标题：眉标 + H2 + "查看全部" | 首页各区块 |
@@ -392,10 +398,15 @@ for (var i = 0; i < nodes.length; i++) {
 
 var panels = document.querySelectorAll('[data-panel]');
 for (i = 0; i < panels.length; i++) {
-	panels[i].hidden = panels[i].getAttribute('data-panel') !== lang;
+	var parent = panels[i].parentNode;
+	// 只在同一父容器里真的存在当前语言的面板时才切换，否则保留原面板
+	var hasCurrent = !!(parent && parent.querySelector('[data-panel="' + lang + '"]'));
+	panels[i].hidden = hasCurrent && panels[i].getAttribute('data-panel') !== lang;
 }
 document.documentElement.classList.add('lang-ready');
 ```
+
+这里的 `hasCurrent` 判断不是防御性编程，是**必需**的：内容没补英文时详情页只有一个中文面板，如果无条件按语言显隐，切到英文就会把中文藏起来、又没有英文可显示，正文直接变空白。加上这一层之后，"没写英文"退化成"显示中文"，而不是"页面坏掉"。
 
 `is:inline` 是关键：这两段是**同步**执行的，不经过 Astro 的打包与延迟加载，所以能跑在首帧之前。
 
@@ -482,6 +493,7 @@ body 末尾脚本替换全部 textContent、切换面板 → 加 .lang-ready
 | `data-zh` 挂在含子元素的容器上 | 内部的 `<span>` / `<a>` 被 `textContent` 抹掉 | 只挂纯文本叶子节点，文案单独包 span |
 | 隐私模式 / 禁用存储 | `localStorage` 抛异常，整个脚本挂掉 | 所有读写都包 `try/catch`，失败则退回中文 |
 | Astro 对 `undefined` 属性的处理 | 传 `data-en={undefined}` | Astro 会**省略该属性**，元素自动保持中文，不报错——这正好成了"未翻译内容"的自然降级 |
+| 面板显隐没考虑"没有英文" | 中文面板被脚本藏起来、英文面板又不存在 → 英文模式下详情页正文**空白**（新加的两个项目踩到） | 显隐前先判断同容器内是否存在当前语言的面板（`hasCurrent`），没有就保留原面板 |
 | 中文界面下 mono 眉标过散 | `letter-spacing: .16em` 对 CJK 太宽 | `html[data-lang='zh'] .eyebrow { letter-spacing: 0.1em }` |
 | `<title>` 也需要双语 | 标签页标题留着旧语言 | `<title>` 同样挂 `data-zh` / `data-en`，由同一段脚本处理 |
 
@@ -491,6 +503,8 @@ body 末尾脚本替换全部 textContent、切换面板 → 加 .lang-ready
 
 - 搜索引擎可能把两种语言的正文视为重复内容；
 - 页面 HTML 体积约为单语言的两倍（当前内容量级下 < 10KB，可忽略）。
+
+**另一种取舍：内容没有英文时，英文模式下显示中文**（而不是隐藏或留白）。好处是新增内容零成本、永不空白；代价是英文模式下会混着中文。要让某条内容真正双语，只需在 `src/i18n/content-en.ts` 补一条——**不补也不会坏**。
 
 **要彻底解决只有一条路**：改成方案 A 的 i18n 路由（`/en/**`），届时需要真正的英文 md 文件与 `content.config.ts` 变更。当前阶段判断：**不值得**，等内容量上来或英文流量形成规模再迁移。迁移时中文侧零改动，只是把 `content-en.ts` 的内容拆成 md 文件。
 
@@ -506,7 +520,7 @@ body 末尾脚本替换全部 textContent、切换面板 → 加 .lang-ready
 
 ```
 ┌──────────────────────────────┐
-│ MYBO                [中|EN]  │   ← 第一行：Logo + 语言开关
+│ ⬤ MYBO              [中|EN]  │   ← 第一行：品牌标 + 字标 + 语言开关
 │ 项目  实验室  笔记  关于      │   ← 第二行：菜单独占整行
 └──────────────────────────────┘
 ```
@@ -516,11 +530,13 @@ body 末尾脚本替换全部 textContent、切换面板 → 加 .lang-ready
 ```html
 <div class="shell flex flex-wrap items-center justify-between gap-x-4 py-2
             sm:h-16 sm:flex-nowrap sm:py-0">
-	<a class="order-1 ...">MYBO</a>
+	<a class="order-1 ..."><img src="/logo.png" class="h-5 w-auto sm:h-[22px]" alt="">MYBO</a>
 	<LangToggle class="order-2 sm:order-3" />
 	<div class="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1"> ... </div>
 </div>
 ```
+
+品牌标是 `public/logo.png`（蓝→橙渐变 MB monogram，透明底），源图 491×303 缩到 156×96 存放，导航里显示 20px（手机）/ 22px（桌面）——**保留约 4 倍余量**，高分屏不虚。它是一个纯位图标记，用 `<img>` 直接引用最省事：不需要内联 SVG、不参与打包、不进 JS。`alt=""` 是刻意的：右侧的字标已经把链接说清楚了，再给图标一个 alt 会让读屏念两遍。
 
 **为什么不做汉堡菜单**：只有 4 个链接。为了藏起 4 个链接而引入开合状态、焦点管理、ARIA 属性、点击外部关闭等一整套逻辑，是负收益。两行导航在小屏上是一次"看得见全部出口"的简单交换。
 
@@ -593,21 +609,23 @@ iOS 上点击会触发并"粘住" hover 状态，卡片会一直保持浮起的�
 
 [content] Syncing content
 [content] Synced content
-[types]   Generated 498ms
+[types]   Generated 1.34s
 [build]   output: "static"
 [build]   mode: "static"
 
  generating static routes
- ├─ /about/index.html                        (+10ms)
+ ├─ /about/index.html
  ├─ /experiments/first-ai-automation/index.html
  ├─ /experiments/index.html
  ├─ /notes/why-mybo/index.html
  ├─ /notes/index.html
  ├─ /projects/mybo/index.html
+ ├─ /projects/mybo-搭建实现说明/index.html
+ ├─ /projects/szccf-ai内容生产与发布自动化系统-项目案例-wb-20260922/index.html
  ├─ /projects/index.html
  └─ /index.html
 
-[build] 8 page(s) built in 2.58s
+[build] 10 page(s) built in 780ms
 [build] Complete!
 ```
 
@@ -617,13 +635,14 @@ iOS 上点击会触发并"粘住" hover 状态，卡片会一直保持浮起的�
 dist/
 ├── index.html
 ├── about/index.html
-├── projects/{index.html, mybo/index.html}
-├── experiments/{index.html, first-ai-automation/index.html}
-├── notes/{index.html, why-mybo/index.html}
-└── _astro/ui.Dm_CTiRI.css        ← 全部样式一个文件
+├── projects/{index.html, <每个项目>/index.html}
+├── experiments/{index.html, <每个实验>/index.html}
+├── notes/{index.html, <每篇笔记>/index.html}
+├── logo.png  favicon.ico  favicon.svg  apple-touch-icon.png   ← public/ 原样复制
+└── _astro/ui.DIn1F4qx.css        ← 全部样式一个文件
 ```
 
-- **8 个 HTML + 1 个 CSS，没有任何 JS chunk。** 因为全站脚本都是 `is:inline`，没有岛屿组件，Astro 不需要产出客户端 JS。
+- **N 个 HTML + 1 个 CSS，没有任何 JS chunk。** 因为全站脚本都是 `is:inline`，没有岛屿组件，Astro 不需要产出客户端 JS。（N = 8 个固定页面 + 内容条目数：写这份文档时是 8，加进 2 个项目后是 10——**产物数量随内容增长，这正是 Content Collections 的工作方式**。）
 - 只在 `output: static` 下工作，不依赖任何服务器运行时——这正是能直接丢给 Cloudflare Pages 的原因。
 
 ### 11.3 每次改动后的验证清单
@@ -640,12 +659,15 @@ dist/
 
 由于这台环境装不了浏览器自动化工具，改用了脚本化的无头校验（工作区 `.workbuddy/verify.cjs`，不属于项目仓库），检查项：
 
-- 每个页面的 `data-zh` / `data-en` 是否成对出现
+- 每个页面的 `data-en` 是否都有对应的 `data-zh`（允许反向多出：多出来的视为"待翻译"）
 - 语言切换按钮是否存在（每页 2 个）
-- 详情页是否有 `data-panel="zh"` / `data-panel="en"` 双面板
+- 详情页正文面板：有英文的必须是双面板，没英文的必须只剩中文面板（走兜底，不能是空白）
+- 导航是否存在品牌标 `src="/logo.png"`，且 `dist/logo.png` 已产出
 - `Layout` 里的内联脚本能否通过语法检查
 - `global.css` 关键规则（`lang-ready` 防闪烁、`scroll-margin-top`、`overflow-wrap` 等）是否存在
 - 移动端断言：`viewport-fit`、导航两行、`safe-area`、`hover: none` 守卫
+
+> **一个坑**：这个脚本是正则计数，而"搭建实现说明"这类文档正文里会成段引用 `data-zh` / `data-panel` / `data-set-lang` 的源码。所以计数前必须先把 `<script>` / `<pre>` / `<code>` 剥掉，否则会数出根本不存在的元素（曾被误报成"某页有 3 个语言按钮"）。
 
 这不能替代肉眼验证，但能在重构时**兜住"结构被改坏"这类回归**。
 
@@ -693,8 +715,10 @@ dist/
 | 内容 | Markdown + glob loader | MDX | 需要在正文里嵌入交互组件时（改后缀即可） |
 | 内容与代码 | Content Collections | 硬编码进 `.astro` | 不适用——这是本项目的地基 |
 | 导航 | Logo 即首页入口（4 项菜单） | 5 项菜单含 Home | 菜单超过 5 项时 |
+| 导航品牌标 | `public/logo.png`（位图，20/22px） | 内联 SVG / 图标字体 | 拿到矢量源文件、或需要随主题换色时 |
 | 导航命名 | 路由 `/experiments`，文案"实验室 / Lab" | 字面直译"实验" | 路由与文案要对齐 SEO 关键词时 |
 | 移动端导航 | 两行 flex-wrap | 汉堡菜单 | 菜单项超过 5 个时 |
+| 首页展示密度 | 精选项目**最多 3 个**（featured + 日期倒序截断） | 首页铺开全部精选 | 首页想承载更多时——更该做的是强化 `/projects` 列表页 |
 | 中英切换 | 属性驱动 + 客户端脚本 | i18n 路由（方案 A） | 英文流量形成规模，或在意 SEO 重复内容时 |
 | 项目卡封面 | 伪终端面板占位 | 真实截图 | 拿到项目截图后（需先给 schema 加 `cover` 字段） |
 | 字体 | Inter + 系统中文栈，非阻塞加载 | 自托管中文字体 | 需要精确控制中文字形时（代价是几百 KB） |
@@ -713,8 +737,10 @@ dist/
 | 3 | 模板残留未被引用：`components/Welcome.astro`、`assets/astro.svg`、`assets/background.svg`、`assets/images/hero/mybo-hero.webp`（**1.3 MB**） | 首张 hero 图占了仓库体积的大头 | 确认无引用后删除（未删是为避免误伤非授权范围） |
 | 4 | `package.json` 里的 `@astrojs/markdown-satteri` 未被任何配置引用 | 多一个无用依赖 | 确认后移除 |
 | 5 | `README.md` 仍是 Astro 官方模板内容 | 仓库首页对访问者没有信息量 | 替换为 MyBo 自己的项目说明 |
-| 6 | 每个集合只有 1 条内容 | 列表页的视觉密度、分页/筛选需求都还没被真实数据检验 | 等内容超过 6 条再评估是否需要分页与筛选 |
+| 6 | 内容量仍偏少（projects 3 条、experiments / notes 各 1 条） | 列表页的视觉密度、分页/筛选需求都还没被真实数据检验 | 等内容超过 6～9 条再评估是否需要分页与筛选 |
 | 7 | 全站脚本为内联，无法被浏览器缓存复用 | 多页浏览时重复下载脚本（当前体积很小，可忽略） | 脚本逻辑变复杂（>2KB）时考虑提取为外部资源 |
+| 8 | `public/favicon.svg` 仍是 Astro 官方模板图标，而 `Layout` 的 `<head>` 里它声明在前且带 `type="image/svg+xml"` | 浏览器可能优先采用它 → 标签页仍显示旧图标（`favicon.ico` / `apple-touch-icon.png` 已换成 MyBo 的） | 换成 MyBo 的图标，或从 `<head>` 里移除这一行 |
+| 9 | 部分内容没有英文（后加的两个项目未补 `content-en.ts`） | 英文模式下这些条目的标题与正文显示中文 | 需要双语时补 `content-en.ts` 对应条目；**不补不影响中文站** |
 
 ---
 
@@ -722,7 +748,7 @@ dist/
 
 | 阶段 | 目标 | 具体动作 |
 | --- | --- | --- |
-| **阶段 3 统一视觉**（进行中） | 视觉一致性 | ✅ 设计令牌 + 组件化已完成；待办：统一各页 Section 节奏、补 `cover` 字段 |
+| **阶段 3 统一视觉**（接近完成） | 视觉一致性 | ✅ 设计令牌 + 组件化 + 响应式（两行导航、字号降档、安全区）+ 中英切换 + 导航品牌标已完成；首页三个区块各截断为 3 条。待办：统一各页 Section 节奏、补 `cover` 字段（需先动 schema） |
 | **阶段 4 部署** | 上线 `mybo.bot` | 绑定自定义域、配置构建缓存、提交 sitemap 与 robots.txt |
 | **阶段 5 项目展示强化** | 单个项目的表达力 | 加 `cover` 字段与截图、正文支持架构图（Mermaid 或图片）、加"背景/问题/方案/结果/复盘"的正文模板、加 GitHub 仓库外链字段 |
 | **阶段 6 个人 AI 系统** | 从展示站变成系统入口 | 接入 n8n / Agent / MCP / RAG / 私有数据库；`lab.` / `tools.` / `research.` 子域分流；**公网站点只做展示，私有服务独立部署** |
@@ -737,9 +763,10 @@ dist/
 
 1. 在对应目录新建 md：`src/content/{projects|experiments|notes}/<文件名>.md`
 2. 写 frontmatter（照抄同类文件，注意 `status` 的可选值与 `date` 格式）
+   - **projects 专属**：`featured: true` 才会进首页「项目与系统」，且首页**最多显示 3 个**（按 `date` 倒序截断）——再多只会出现在 `/projects` 列表页
 3. 正文从 `##` 级标题开始写（不要写 `#`，H1 由 frontmatter 提供）
 4. **【可选】补英文**：在 `src/i18n/content-en.ts` 里按文件 id 加一条 `{ title, description, html }`
-   - 不补 → 该内容在英文模式下保持中文显示（不会报错）
+   - 不补 → 该内容在英文模式下保持中文显示（标题、描述、正文都是，不会报错、不会空白）
 5. `npm run build` 确认无错，commit
 
 > 文件名 = URL。改名会导致旧链接 404。

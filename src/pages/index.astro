@@ -12,9 +12,11 @@ const projects = await getCollection('projects');
 const experiments = await getCollection('experiments');
 const notes = await getCollection('notes');
 
+// 首页「项目与系统」：取精选项目，按日期倒序，最多展示 3 个（更多内容交给 /projects 列表页）
 const featuredProjects = projects
 	.filter((project) => project.data.featured)
-	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+	.slice(0, 3);
 
 const latestExperiments = [...experiments]
 	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())

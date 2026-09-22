@@ -31,9 +31,15 @@ const isActive = (href: string) =>
 			href="/"
 			class="group order-1 flex flex-none items-center gap-2.5 font-mono text-[17px] font-bold leading-none tracking-[0.08em] text-mybo-fg sm:text-[18px]"
 		>
-			<span
-				class="inline-block h-3 w-3 flex-none rounded-[3px] bg-mybo-fg transition-transform duration-200 group-hover:scale-125 sm:h-3.5 sm:w-3.5"
-			></span>
+			<!-- 品牌标（public/logo.png）：透明底 491×303 源图缩到 156×96，显示尺寸 20/22px 仍有 4x 余量 -->
+			<img
+				src="/logo.png"
+				alt=""
+				width="156"
+				height="96"
+				decoding="async"
+				class="h-5 w-auto flex-none select-none transition-transform duration-200 group-hover:scale-105 sm:h-[22px]"
+			/>
 			MYBO
 		</a>
 

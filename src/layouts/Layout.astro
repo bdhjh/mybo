@@ -107,9 +107,16 @@ const {
 						if (text !== null) el.textContent = text;
 					}
 
+					// 正文面板整体显隐：只有当同一父容器里真的存在当前语言的面板时才切换，
+					// 否则保留原面板（内容还没写英文时回退显示中文，避免出现空白正文）
 					var panels = document.querySelectorAll('[data-panel]');
 					for (i = 0; i < panels.length; i++) {
-						panels[i].hidden = panels[i].getAttribute('data-panel') !== lang;
+						var parent = panels[i].parentNode;
+						var hasCurrent = !!(
+							parent && parent.querySelector('[data-panel="' + lang + '"]')
+						);
+						panels[i].hidden =
+							hasCurrent && panels[i].getAttribute('data-panel') !== lang;
 					}
 
 					var buttons = document.querySelectorAll('[data-set-lang]');
