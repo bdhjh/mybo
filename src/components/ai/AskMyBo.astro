@@ -1,0 +1,326 @@
+---
+/**
+ * Ask MyBo —— 右下角浮动入口 + 聊天面板的行为
+ *
+ * 设计约束（与本项目现有特征保持一致）：
+ *   1. 零 JS chunk：脚本用 is:inline，不走 Astro 打包；
+ *   2. 零依赖：原生 DOM API，不引任何前端框架 / 聊天 UI 库；
+ *   3. 双语：静态文案用 data-zh / data-en（Layout 的语言脚本负责切换），
+ *      动态文案在插入时按当前语言取值，placeholder 等属性由本脚本跟随切换。
+ *
+ * 数据来源：Cloudflare Worker「MyBo AI」。
+ *   Worker 先在 MyBo 知识库（项目 / 实验 / 笔记）里检索，再基于检索内容作答；
+ *   检索不到时后端直接返回固定文案，前端不编造、不兜底任何内容。
+ */
+import ChatWindow from './ChatWindow.astro';
+
+/**
+ * 后端地址：astro dev 走开发用 Worker（CORS 放行 localhost），生产构建走生产 Worker。
+ * 由渲染期决定（import.meta.env.DEV），运行时不做域名判断；
+ * 生产 Worker 的 CORS 白名单里不会出现任何 localhost。
+ */
+// 名字必须和脚本里 fetch() 用的完全一致（define:vars 按 frontmatter 变量名注入）
+const API_ENDPOINT = import.meta.env.DEV
+	? 'https://mybo-ai-dev.jerrkhe.workers.dev/api/chat'
+	: 'https://mybo-ai.jerrkhe.workers.dev/api/chat';
+---
+
+<button type="button" class="ask-launcher" data-ask-launcher aria-expanded="false" aria-controls="ask-mybo-panel">
+	<span class="ask-launcher__dot" aria-hidden="true"></span>
+	<span data-zh="Ask MyBo" data-en="Ask MyBo">Ask MyBo</span>
+</button>
+
+<ChatWindow />
+
+<script is:inline define:vars={{ API_ENDPOINT }}>
+	(function () {
+		var launcher = document.querySelector('[data-ask-launcher]');
+		var panel = document.querySelector('[data-ask-panel]');
+		if (!launcher || !panel) return;
+
+		var log = panel.querySelector('[data-ask-log]');
+		var form = panel.querySelector('[data-ask-form]');
+		var input = panel.querySelector('[data-ask-input]');
+		var sendBtn = panel.querySelector('[data-ask-send]');
+		var closeBtn = panel.querySelector('[data-ask-close]');
+		var template = panel.querySelector('[data-msg-template]');
+		var suggestions = panel.querySelector('.ask-suggestions');
+
+		/** 对话历史：作为 request body 的 history 字段发送，Worker 侧会做条数与长度限制 */
+		var history = [];
+		/** 是否有请求在飞，用于防重复提交 */
+		var pending = false;
+
+		function lang() {
+			return document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+		}
+
+		/* ---------- 真实后端 ----------
+		   API_ENDPOINT 由 define:vars 注入：dev = mybo-ai-dev，生产构建 = mybo-ai。
+		   Worker 只暴露 /api/chat，且带来源白名单；这里不做重试、不暴露错误信息。 */
+		/** 超时：超时按「无法响应」处理，避免面板一直转圈 */
+		var REQUEST_TIMEOUT_MS = 20000;
+
+		/**
+		 * 只保留站内相对链接：
+		 * 万一后端返回了 R2 路径 / item id / API 地址等内部信息，这里直接丢弃，
+		 * 绝不渲染到页面上。
+		 */
+		function normalizeSources(list) {
+			if (!list || !list.length) return [];
+			var out = [];
+			for (var i = 0; i < list.length && out.length < 3; i++) {
+				var s = list[i];
+				if (!s || typeof s.title !== 'string' || typeof s.url !== 'string') continue;
+				var url = s.url;
+				if (url.charAt(0) !== '/' || url.indexOf('//') === 0) continue;
+				out.push({ title: s.title, url: url });
+			}
+			return out;
+		}
+
+		function requestAnswer(message, conversation) {
+			var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+			var timer = controller
+				? setTimeout(function () {
+						controller.abort();
+					}, REQUEST_TIMEOUT_MS)
+				: null;
+
+			var init = {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message: message, history: conversation || [] }),
+			};
+			if (controller) init.signal = controller.signal;
+
+			return fetch(API_ENDPOINT, init)
+				.then(function (res) {
+					// 非 2xx：可能是 400 / 405 / 502，统一按「无法响应」处理
+					if (!res.ok) throw new Error('HTTP_' + res.status);
+					return res.json();
+				})
+				.then(function (data) {
+					// 结构校验：answer 缺失 / 后端返回 error，都算失败
+					if (!data || typeof data.answer !== 'string' || !data.answer.trim()) {
+						throw new Error('BAD_PAYLOAD');
+					}
+					return { answer: data.answer, sources: normalizeSources(data.sources) };
+				})
+				.then(
+					function (result) {
+						if (timer) clearTimeout(timer);
+						return result;
+					},
+					function (err) {
+						if (timer) clearTimeout(timer);
+						throw err;
+					}
+				);
+		}
+
+		/* ---------- 渲染 ---------- */
+
+		function scrollToEnd() {
+			log.scrollTop = log.scrollHeight;
+		}
+
+		function buildSources(sources) {
+			var en = lang() === 'en';
+			var wrap = document.createElement('div');
+			wrap.className = 'msg__sources';
+
+			var label = document.createElement('p');
+			label.className = 'msg__sources-label';
+			label.textContent = en ? 'Sources' : '来源';
+			wrap.appendChild(label);
+
+			var ul = document.createElement('ul');
+			for (var i = 0; i < sources.length; i++) {
+				var li = document.createElement('li');
+				var a = document.createElement('a');
+				a.className = 'msg__source';
+				a.href = sources[i].url;
+				a.textContent = sources[i].title;
+				li.appendChild(a);
+				ul.appendChild(li);
+			}
+			wrap.appendChild(ul);
+
+			return wrap;
+		}
+
+		function appendMessage(role, text, sources) {
+			var node = template.content.firstElementChild.cloneNode(true);
+			node.classList.add('msg--' + role);
+
+			var meta = node.querySelector('.msg__meta');
+			if (role === 'user') {
+				// 用户消息不显示发送者标签
+				meta.parentNode.removeChild(meta);
+			} else {
+				node.querySelector('.msg__who').textContent = 'MyBo AI';
+			}
+
+			node.querySelector('.msg__bubble').textContent = text;
+			// 没有 sources 就不渲染来源区，避免出现空的「来源」标题
+			if (sources && sources.length) {
+				node.appendChild(buildSources(sources));
+			}
+			log.appendChild(node);
+			scrollToEnd();
+			return node;
+		}
+
+		function appendThinking() {
+			var en = lang() === 'en';
+			var node = template.content.firstElementChild.cloneNode(true);
+			node.classList.add('msg--assistant', 'msg--thinking');
+			node.querySelector('.msg__who').textContent = 'MyBo AI';
+
+			var bubble = node.querySelector('.msg__bubble');
+			var text = document.createElement('span');
+			text.textContent = en ? 'Thinking…' : '正在思考…';
+			var dots = document.createElement('span');
+			dots.className = 'ask-dots';
+			dots.innerHTML = '<i></i><i></i><i></i>';
+			bubble.appendChild(text);
+			bubble.appendChild(dots);
+
+			log.appendChild(node);
+			scrollToEnd();
+			return node;
+		}
+
+		/* ---------- 发送 ---------- */
+
+		function send(raw) {
+			var value = (raw || '').trim();
+			if (!value || pending) return;
+
+			// 第一次发送后收起快捷问题，避免占着消息区
+			if (suggestions && suggestions.parentNode) {
+				suggestions.parentNode.removeChild(suggestions);
+				suggestions = null;
+			}
+
+			appendMessage('user', value);
+			history.push({ role: 'user', content: value });
+
+			input.value = '';
+			autoGrow();
+			syncSendState();
+			pending = true;
+
+			var thinking = appendThinking();
+
+			requestAnswer(value, history.slice(0, -1))
+				.then(function (data) {
+					if (thinking.parentNode) thinking.parentNode.removeChild(thinking);
+					appendMessage('assistant', data.answer, data.sources || []);
+					history.push({ role: 'assistant', content: data.answer });
+				})
+				.catch(function () {
+					if (thinking.parentNode) thinking.parentNode.removeChild(thinking);
+					appendMessage(
+						'assistant',
+						lang() === 'en'
+							? 'AI Assistant is temporarily unavailable. Please try again later.'
+							: 'AI Assistant 暂时无法响应，请稍后再试。'
+					);
+				})
+				.then(function () {
+					pending = false;
+				});
+		}
+
+		/* ---------- 输入框 ---------- */
+
+		function autoGrow() {
+			input.style.height = 'auto';
+			input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+		}
+
+		function syncSendState() {
+			sendBtn.disabled = input.value.trim() === '';
+		}
+
+		input.addEventListener('input', function () {
+			autoGrow();
+			syncSendState();
+		});
+
+		input.addEventListener('keydown', function (event) {
+			// isComposing / keyCode 229：中文输入法组词中按 Enter 是「上屏」，不能当发送
+			if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
+				event.preventDefault();
+				send(input.value);
+			}
+		});
+
+		form.addEventListener('submit', function (event) {
+			event.preventDefault();
+			send(input.value);
+		});
+
+		var chips = panel.querySelectorAll('[data-ask-suggestion]');
+		for (var i = 0; i < chips.length; i++) {
+			chips[i].addEventListener('click', function () {
+				var value = this.getAttribute(lang() === 'en' ? 'data-en' : 'data-zh');
+				send(value);
+			});
+		}
+
+		/* ---------- 打开 / 关闭 ---------- */
+
+		function setOpen(open) {
+			panel.hidden = !open;
+			launcher.hidden = open;
+			launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+			if (open) {
+				scrollToEnd();
+				input.focus();
+			} else {
+				launcher.focus();
+			}
+		}
+
+		launcher.addEventListener('click', function () {
+			setOpen(true);
+		});
+		closeBtn.addEventListener('click', function () {
+			setOpen(false);
+		});
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape' && !panel.hidden) setOpen(false);
+		});
+
+		/* ---------- 跟随中英切换的文案（placeholder / aria-label） ---------- */
+
+		function applyI18n() {
+			var en = lang() === 'en';
+			input.setAttribute(
+				'placeholder',
+				input.getAttribute(en ? 'data-en-placeholder' : 'data-zh-placeholder')
+			);
+			closeBtn.setAttribute(
+				'aria-label',
+				closeBtn.getAttribute(en ? 'data-en-aria' : 'data-zh-aria')
+			);
+			var hint = panel.querySelector('#ask-panel-hint');
+			if (hint) {
+				hint.textContent = en
+					? 'Enter to send · Shift + Enter for a new line'
+					: 'Enter 发送 · Shift + Enter 换行';
+			}
+		}
+
+		applyI18n();
+		if (typeof MutationObserver !== 'undefined') {
+			new MutationObserver(applyI18n).observe(document.documentElement, {
+				attributes: true,
+				attributeFilter: ['data-lang'],
+			});
+		}
+	})();
+</script>

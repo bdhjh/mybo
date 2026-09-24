@@ -1,0 +1,107 @@
+---
+/**
+ * ChatWindow —— Ask MyBo 的聊天面板
+ *
+ * 只做结构与样式，不含行为：行为全部在 AskMyBo.astro 的 is:inline 脚本里
+ * （保持本项目「零 JS chunk」的特征，不做岛屿组件、不引第三方聊天库）。
+ *
+ * 回答来自 Cloudflare Worker「MyBo AI」，基于 MyBo 知识库生成；
+ * 检索不到时后端返回固定文案，并在消息下方给出站内来源链接。
+ */
+import ChatMessage from './ChatMessage.astro';
+
+// 首屏的欢迎语：服务端渲染中文，英文由语言脚本替换
+const welcomeZh =
+	'你好，我是 MyBo AI。你可以问我做过的项目、AI 自动化实践和技术决策。';
+const welcomeEn =
+	"Hi, I'm MyBo AI. Ask me about my projects, AI automation work, and technical decisions.";
+
+// 快捷问题：点击后直接发送
+const suggestions = [
+	{
+		zh: '我做过哪些 AI 自动化项目？',
+		en: 'What AI automation projects have I built?',
+	},
+	{
+		zh: 'MyBo 网站是怎么搭建的？',
+		en: 'How was the MyBo site built?',
+	},
+	{
+		zh: '你解决过类似的问题吗？',
+		en: 'Have you solved a similar problem before?',
+	},
+];
+---
+
+<section
+	id="ask-mybo-panel"
+	class="ask-panel"
+	data-ask-panel
+	hidden
+	role="dialog"
+	aria-label="Ask MyBo"
+	aria-describedby="ask-panel-hint"
+>
+	<header class="ask-panel__head">
+		<h2 class="ask-panel__title">Ask MyBo</h2>
+		<button
+			type="button"
+			class="ask-panel__close"
+			data-ask-close
+			aria-label="关闭"
+			data-zh-aria="关闭"
+			data-en-aria="Close"
+		>
+			<span aria-hidden="true">×</span>
+		</button>
+	</header>
+
+	<div class="ask-body" data-ask-log role="log" aria-live="polite">
+		<ChatMessage role="assistant" zh={welcomeZh} en={welcomeEn} />
+
+		<div class="ask-suggestions">
+			{
+				suggestions.map((item) => (
+					<button
+						type="button"
+						class="ask-suggestion"
+						data-ask-suggestion
+						data-zh={item.zh}
+						data-en={item.en}
+					>
+						{item.zh}
+					</button>
+				))
+			}
+		</div>
+	</div>
+
+	<form class="ask-form" data-ask-form>
+		<textarea
+			class="ask-input"
+			data-ask-input
+			rows="1"
+			maxlength="500"
+			placeholder="输入你的问题…"
+			data-zh-placeholder="输入你的问题…"
+			data-en-placeholder="Ask me anything…"
+			aria-label="输入你的问题"></textarea>
+		<button type="submit" class="ask-send" data-ask-send disabled>
+			<span data-zh="发送" data-en="Send">发送</span>
+		</button>
+	</form>
+	<p class="ask-hint" id="ask-panel-hint">
+		Enter 发送 · Shift + Enter 换行
+	</p>
+
+	<!--
+		动态消息的唯一模板：JS 克隆后按 role 补 class、填文本。
+		样式与 ChatMessage.astro 完全一致，改样式只需改 global.css。
+	-->
+	<template data-msg-template>
+		<div class="msg">
+			<div class="msg__meta"><span class="msg__who"></span></div>
+			<div class="msg__bubble"></div>
+		</div>
+	</template>
+</section>

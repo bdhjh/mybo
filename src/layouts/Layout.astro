@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import AskMyBo from '../components/ai/AskMyBo.astro';
 
 interface Props {
 	title?: string;
@@ -76,6 +77,12 @@ const {
 		</main>
 
 		<Footer />
+
+		<!--
+			Ask MyBo：右下角浮动入口 + 聊天面板。
+			放在语言切换脚本之前，好让它内部的 data-zh / data-en 文案也参与首帧切换。
+		-->
+		<AskMyBo />
 
 		<!--
 			语言切换脚本（is:inline 保证是同步执行，跑在首帧之前，不会有中文闪一下）。

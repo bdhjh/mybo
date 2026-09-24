@@ -5,6 +5,19 @@ date: 2026-09-22
 status: "completed"
 tags: ["AI", "自动化", "内容系统", "工作流", "Human-in-the-loop"]
 featured: true
+category: "ai-automation"
+tools:
+  - WorkBuddy
+  - n8n
+  - 飞书多维表
+  - 钉钉 AI 表格
+  - Node.js
+  - puppeteer-core
+  - Chrome DevTools Protocol
+  - Docker
+  - 小红书
+  - 今日头条
+  - SVG
 ---
 
 # AI 内容生产与发布自动化系统

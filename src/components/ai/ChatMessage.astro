@@ -1,0 +1,54 @@
+---
+/**
+ * ChatMessage —— 一条聊天气泡
+ *
+ * 本组件只负责「静态渲染一条消息」，动态消息由 AskMyBo.astro 里的
+ * <template> 克隆生成（保持同一套 class，样式不重复）。
+ *
+ * 双语：文本同时带 data-zh / data-en，由 Layout.astro 的语言脚本切换。
+ *      动态插入的消息在 JS 里按当前语言取值，不走属性替换。
+ */
+export interface ChatSource {
+	title: string;
+	url: string;
+}
+
+interface Props {
+	role: 'user' | 'assistant';
+	zh: string;
+	en: string;
+	sources?: ChatSource[];
+}
+
+const { role, zh, en, sources = [] } = Astro.props;
+---
+
+<div class={`msg msg--${role}`} data-msg-role={role}>
+	{
+		role === 'assistant' && (
+			<div class="msg__meta">
+				<span data-zh="MyBo AI" data-en="MyBo AI">MyBo AI</span>
+			</div>
+		)
+	}
+	<div class="msg__bubble" data-zh={zh} data-en={en}>{zh}</div>
+
+	{
+		sources.length > 0 && (
+			<div class="msg__sources">
+				<p class="msg__sources-label" data-zh="来源" data-en="Sources">
+					来源
+				</p>
+				<ul>
+					{sources.map((source) => (
+						<li>
+							<a class="msg__source" href={source.url}>
+								{source.title}
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		)
+	}
+</div>

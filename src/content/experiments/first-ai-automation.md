@@ -7,6 +7,7 @@ tags:
   - AI
   - Automation
   - Workflow
+category: "ai-automation"
 ---
 
 # First AI Automation Experiment

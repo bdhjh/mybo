@@ -6,6 +6,7 @@ tags:
   - MyBo
   - AI
   - Personal Lab
+category: "personal-lab"
 ---
 
 # 为什么开始做 MyBo

@@ -1,0 +1,45 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mybo-ai",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-23",
+	// ── Model Layer ──────────────────────────────────────────────────────
+	// V1 用 Workers AI，不需要任何外部 API Key。
+	// 将来换 Provider 只改环境变量 MODEL_PROVIDER，代码不动。
+	"ai": {
+		"binding": "AI"
+	},
+	// ── Search Layer ─────────────────────────────────────────────────────
+	// 实例 mybo-knowledge 的数据源是 R2 bucket `mybo-ai-knowledge`，
+	// 并用 path filtering 只索引 kb/ 前缀（manifest.json 不会被当成知识）。
+	// remote: true —— 本地 wrangler dev 时直连线上实例（本地无法模拟 AI Search）。
+	"ai_search": [
+		{
+			"binding": "KNOWLEDGE_SEARCH",
+			"instance_name": "mybo-knowledge",
+			"remote": true
+		}
+	],
+	// 同一个 bucket：Worker 只读根目录下的 manifest.json，用来把对象键
+	// 映射成「可读标题 + 站内 URL」。
+	// 注意：wrangler 曾自动追加过一个指向同一 bucket 的 `mybo_ai_knowledge`
+	// 绑定，代码零引用，已删除；若再次自动出现可安全移除。
+	"r2_buckets": [
+		{
+			"binding": "KNOWLEDGE_BUCKET",
+			"bucket_name": "mybo-ai-knowledge"
+		}
+	],
+	"vars": {
+		// CORS 白名单。需要本地联调时，用 .dev.vars 覆盖加上 http://localhost:4321
+		"ALLOWED_ORIGINS": "https://mybo.bot,https://www.mybo.bot",
+		"WORKERS_AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		"MAX_TOP_K": "5",
+		"MAX_INPUT_CHARS": "500"
+	}
+	// ── 自定义域 ────────────────────────────────────────────────────────
+	// 确认 mybo.bot 的 DNS 在本 Cloudflare 账号下托管之后，再取消注释：
+	// "routes": [
+	//   { "pattern": "ai.mybo.bot", "custom_domain": true }
+	// ]
+}

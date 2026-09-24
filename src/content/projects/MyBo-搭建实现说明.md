@@ -5,6 +5,14 @@ date: 2026-09-19
 status: "completed"
 tags: ["AI", "Agent"]
 featured: true
+category: "website-engineering"
+tools:
+  - Astro
+  - Tailwind CSS
+  - TypeScript
+  - Node.js
+  - Cloudflare Pages
+  - GitHub
 ---
 
 # MyBo 搭建实现说明

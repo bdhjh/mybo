@@ -9,6 +9,13 @@ tags:
   - Agent
   - Workflow
 featured: true
+category: "personal-lab"
+tools:
+  - Astro
+  - Tailwind CSS
+  - TypeScript
+  - Cloudflare Pages
+  - GitHub
 ---
 
 # MyBo

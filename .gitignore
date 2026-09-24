@@ -4,5 +4,36 @@ dist/
 .env
 .env.*
 !.env.example
+
+# wrangler 本地变量（workers/ai/.dev.vars）——可能含本地调试用凭据
+.dev.vars
+.dev.vars.*
+
+# AI 知识库同步产物（由 scripts/sync-ai-knowledge.ts 生成）
+.ai-knowledge/
 .DS_Store
 Thumbs.db
+
+# Cloudflare Wrangler 本地状态与缓存
+.wrangler/
+
+# WorkBuddy 工作区/运行记录（防止未来误放入项目）
+.workbuddy/
+
+# 日志
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 缓存与临时目录
+.cache/
+.tmp/
+tmp/
+temp/
+
+# IDE
+.idea/
+*.swp
