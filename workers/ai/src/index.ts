@@ -56,13 +56,18 @@ type ErrorCode = 'INVALID_REQUEST' | 'AI_UNAVAILABLE';
 
 const ERROR_MESSAGE: Record<ErrorCode, string> = {
 	INVALID_REQUEST: '请求格式不正确。',
-	AI_UNAVAILABLE: 'AI Assistant 暂时无法响应，请稍后再试。',
+	AI_UNAVAILABLE: 'AI 服务暂时无法响应，请稍后再试。',
 };
 
-function errorResponse(code: ErrorCode, status: number): Response {
+/**
+ * 错误响应也必须带 CORS 头：否则浏览器侧只会看到一次 fetch reject，
+ * Network 里看不到真实状态码与 body，线上问题无从排查。
+ * 白名单逻辑与成功响应完全共用 corsHeaders()，不会放宽。
+ */
+function errorResponse(code: ErrorCode, status: number, origin: string | null, env: Env): Response {
 	return Response.json(
 		{ error: { code, message: ERROR_MESSAGE[code] } },
-		{ status, headers: baseHeaders() }
+		{ status, headers: corsHeaders(origin, env) }
 	);
 }
 
@@ -144,20 +149,22 @@ interface ChatRequestBody {
 }
 
 async function handleChat(request: Request, env: Env): Promise<Response> {
+	const origin = request.headers.get('origin');
+
 	let body: ChatRequestBody;
 	try {
 		body = (await request.json()) as ChatRequestBody;
 	} catch {
-		return errorResponse('INVALID_REQUEST', 400);
+		return errorResponse('INVALID_REQUEST', 400, origin, env);
 	}
 
 	if (typeof body.message !== 'string' || body.message.trim().length === 0) {
-		return errorResponse('INVALID_REQUEST', 400);
+		return errorResponse('INVALID_REQUEST', 400, origin, env);
 	}
 
 	const maxChars = Number(env.MAX_INPUT_CHARS) || DEFAULT_MAX_INPUT;
 	if (body.message.length > maxChars) {
-		return errorResponse('INVALID_REQUEST', 400);
+		return errorResponse('INVALID_REQUEST', 400, origin, env);
 	}
 
 	const history = Array.isArray(body.history) ? (body.history as ChatTurn[]) : [];
@@ -182,7 +189,7 @@ async function handleChat(request: Request, env: Env): Promise<Response> {
 	} catch (e) {
 		// 详细原因只进日志，不进响应
 		console.error('[chat] failed:', e instanceof Error ? e.message : e);
-		return errorResponse('AI_UNAVAILABLE', 502);
+		return errorResponse('AI_UNAVAILABLE', 502, origin, env);
 	}
 }
 
@@ -200,7 +207,7 @@ export default {
 
 		if (url.pathname === '/api/chat') {
 			if (request.method !== 'POST') {
-				return errorResponse('INVALID_REQUEST', 405);
+				return errorResponse('INVALID_REQUEST', 405, origin, env);
 			}
 			return handleChat(request, env);
 		}

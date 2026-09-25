@@ -22,7 +22,7 @@ import ChatWindow from './ChatWindow.astro';
 // 名字必须和脚本里 fetch() 用的完全一致（define:vars 按 frontmatter 变量名注入）
 const API_ENDPOINT = import.meta.env.DEV
 	? 'https://mybo-ai-dev.jerrkhe.workers.dev/api/chat'
-	: 'https://mybo-ai.jerrkhe.workers.dev/api/chat';
+	: 'https://ai.mybo.bot/api/chat';
 ---
 
 <button type="button" class="ask-launcher" data-ask-launcher aria-expanded="false" aria-controls="ask-mybo-panel">
@@ -56,10 +56,42 @@ const API_ENDPOINT = import.meta.env.DEV
 		}
 
 		/* ---------- 真实后端 ----------
-		   API_ENDPOINT 由 define:vars 注入：dev = mybo-ai-dev，生产构建 = mybo-ai。
+		   API_ENDPOINT 由 define:vars 注入：dev = mybo-ai-dev…workers.dev，
+		   生产 = ai.mybo.bot（workers.dev 子域在国内 DNS 环境不可达，已改用自定义域）。
 		   Worker 只暴露 /api/chat，且带来源白名单；这里不做重试、不暴露错误信息。 */
-		/** 超时：超时按「无法响应」处理，避免面板一直转圈 */
+		/** 超时：超时按「网络请求失败」处理，避免面板一直转圈 */
 		var REQUEST_TIMEOUT_MS = 20000;
+
+		/** 失败文案分两类，便于一眼判断是「请求没到后端」还是「后端 AI 不可用」 */
+		var FAIL_MESSAGE = {
+			network: {
+				zh: '网络请求失败，请检查网络连接后重试。',
+				en: 'Network request failed. Please check your connection and try again.',
+			},
+			service: {
+				zh: 'AI 服务暂时无法响应，请稍后再试。',
+				en: 'AI service is temporarily unavailable. Please try again later.',
+			},
+		};
+
+		/**
+		 * 生成一个带 kind 标记的错误：
+		 *   network —— 请求根本没到后端（DNS 不可达 / fetch reject / 超时 / 断网）
+		 *   service —— 请求到了后端但拿不到回答（非 2xx / JSON 异常 / answer 缺失）
+		 */
+		function fail(kind) {
+			var e = new Error(kind);
+			e.kind = kind;
+			return e;
+		}
+
+		function throwService() {
+			throw fail('service');
+		}
+
+		function throwNetwork() {
+			throw fail('network');
+		}
 
 		/**
 		 * 只保留站内相对链接：
@@ -95,18 +127,20 @@ const API_ENDPOINT = import.meta.env.DEV
 			if (controller) init.signal = controller.signal;
 
 			return fetch(API_ENDPOINT, init)
-				.then(function (res) {
-					// 非 2xx：可能是 400 / 405 / 502，统一按「无法响应」处理
-					if (!res.ok) throw new Error('HTTP_' + res.status);
-					return res.json();
-				})
-				.then(function (data) {
-					// 结构校验：answer 缺失 / 后端返回 error，都算失败
-					if (!data || typeof data.answer !== 'string' || !data.answer.trim()) {
-						throw new Error('BAD_PAYLOAD');
-					}
-					return { answer: data.answer, sources: normalizeSources(data.sources) };
-				})
+				.then(
+					function (res) {
+						// 能拿到响应说明请求到了后端：非 2xx 属于后端侧问题
+						if (!res.ok) throw fail('service');
+						return res.json().then(function (data) {
+							// 结构校验：answer 缺失 / 后端返回 error，都算后端侧问题
+							if (!data || typeof data.answer !== 'string' || !data.answer.trim()) {
+								throw fail('service');
+							}
+							return { answer: data.answer, sources: normalizeSources(data.sources) };
+						}, throwService);
+					},
+					throwNetwork
+				)
 				.then(
 					function (result) {
 						if (timer) clearTimeout(timer);
@@ -220,14 +254,12 @@ const API_ENDPOINT = import.meta.env.DEV
 					appendMessage('assistant', data.answer, data.sources || []);
 					history.push({ role: 'assistant', content: data.answer });
 				})
-				.catch(function () {
+				.catch(function (err) {
 					if (thinking.parentNode) thinking.parentNode.removeChild(thinking);
-					appendMessage(
-						'assistant',
-						lang() === 'en'
-							? 'AI Assistant is temporarily unavailable. Please try again later.'
-							: 'AI Assistant 暂时无法响应，请稍后再试。'
-					);
+					var en = lang() === 'en';
+					// 请求没到后端 → 网络问题；后端回了但拿不到回答 → AI 服务问题
+					var kind = err && err.kind === 'network' ? 'network' : 'service';
+					appendMessage('assistant', FAIL_MESSAGE[kind][en ? 'en' : 'zh']);
 				})
 				.then(function () {
 					pending = false;

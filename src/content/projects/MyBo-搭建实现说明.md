@@ -21,7 +21,7 @@ tools:
 >
 > **本文不讲什么**：日常怎么跑、怎么发文章。那部分见配套文档《MyBo — 项目说明与运行指南》。两份文档是互补关系，一份写"为什么这样设计"，一份写"每天怎么操作"。
 >
-> 写作时点：2026-09-19 · 对应代码状态：master 分支 `4c4adf4`
+> 初稿：2026-09-19（对应 master `4c4adf4`）· 最近增补：2026-09-25（§16 F 正文插图，对应 `b8c3b13`）
 
 ---
 
@@ -107,9 +107,13 @@ b522c28  "Initial commit from Astro"          ← 第 1 步：脚手架初始化
 
 ```
 D:\Projects\mybo\
-├── public/
+├── public/                             静态直出：原样复制进 dist/，直接可访问
+│   ├── images/                         正文插图：/images/<集合>/<内容 id>/<文件>（见 §16 F）
+│   │   ├── projects/mybo/
+│   │   ├── notes/why-mybo/
+│   │   └── experiments/
 │   ├── logo.png                        导航品牌标（蓝→橙 MB monogram，透明底）
-│   ├── favicon.svg / favicon.ico / apple-touch-icon.png   静态直出资源
+│   ├── favicon.svg / favicon.ico / apple-touch-icon.png   标签页图标
 ├── src/
 │   ├── content/                         ── ① 内容层：只放 md
 │   │   ├── projects/*.md               当前 3 篇（mybo / 搭建实现说明 / SZCCF 项目案例）
@@ -729,6 +733,7 @@ dist/
 | 首页展示密度 | 精选项目**最多 3 个**（featured + 日期倒序截断） | 首页铺开全部精选 | 首页想承载更多时——更该做的是强化 `/projects` 列表页 |
 | 中英切换 | 属性驱动 + 客户端脚本 | i18n 路由（方案 A） | 英文流量形成规模，或在意 SEO 重复内容时 |
 | 项目卡封面 | 伪终端面板占位 | 真实截图 | 拿到项目截图后（需先给 schema 加 `cover` 字段） |
+| 正文插图 | `public/images/` 直出 + 根绝对路径引用 | `src/assets/` + Astro `<Image>` 优化 | 正文改用 MDX、或需要在 md 里用图片组件时 |
 | 字体 | Inter + 系统中文栈，非阻塞加载 | 自托管中文字体 | 需要精确控制中文字形时（代价是几百 KB） |
 | 语义色 | 只有 emerald / blue 两系 | 多彩标签体系 | 内容分类维度显著增加时 |
 
@@ -765,7 +770,7 @@ dist/
 
 ---
 
-## 16. 维护手册：五种常见改动怎么做
+## 16. 维护手册：六种常见改动怎么做
 
 ### A. 新增一篇内容（最高频）
 
@@ -814,6 +819,38 @@ dist/
 4. 复用 `NoteItem` 或新建列表项组件
 5. `src/i18n/ui.ts` 加导航文案，`Nav.astro` 加菜单项，`content-en.ts` 加英文层
 6. 首页若要展示，在 `index.astro` 加一段查询
+
+### F. 在正文里插入图片
+
+**1）存到约定位置**：`public/images/<集合>/<内容 id>/<文件名>`
+
+- 内容 id = md 文件名 = URL slug（**不带**扩展名）
+- 例：`public/images/projects/mybo/architecture.png`、`.../screenshot-01.webp`
+- 目录骨架已建：`images/projects/mybo/`、`images/notes/why-mybo/`、`images/experiments/`
+
+**2）在 md 里用「根绝对路径」引用**：
+
+```markdown
+![MyBo 系统架构](/images/projects/mybo/architecture.png)
+```
+
+- ✅ `/images/...` —— `public/` 就是站点根，**不带 `public/` 这一层**
+- ❌ `public/images/...`　❌ 相对路径 `../images/...`
+
+**3）默认效果**：`.prose-mybo img` 已经设了 `display:block; width:100%; height:auto` + 1px 边框 + 12px 圆角，所以插图会铺满 760px 正文通栏。要做小图或并排，得自己再包一层容器去约束宽度。
+
+**4）【可选】英文正文**：在 `content-en.ts` 的 `html` 里同样写 `/images/...`，中英共用同一张图，`alt` 可以各写各的。图片本身**不需要** `data-zh` / `data-en`。
+
+**为什么放 `public/` 而不是 `src/assets/`**：内容 md 是纯 Markdown（不是 MDX），正文由 `<Content />` 渲染，用不上 Astro 的 `<Image>` 组件；`public/` 下的文件被原样复制进 `dist/` 并直接服务，开箱即用。
+
+**代价是不走 Astro 的图片优化**——没有 srcset、没有格式转换、没有压缩。所以：
+
+- 自己控制格式与尺寸：优先 webp，宽度 ≤ 1600px
+- 文件名用英文或短横线，避免中文文件名带来的 URL 编码问题
+- Cloudflare Pages 的路径**区分大小写**，本地写法要与线上一致
+
+> ⚠ **`public/**` 是完全公开的**：整个目录会被原样复制进 `dist/` 并对所有人可见。截图里若带 API Key、Token、后台账号、未发布的界面，等于直接挂到公网上。
+> **发图前先脱敏**——这与 §12 的「禁止提交到 GitHub 的内容」是同一条规则。
 
 ---
 

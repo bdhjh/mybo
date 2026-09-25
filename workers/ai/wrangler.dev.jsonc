@@ -1,0 +1,47 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	// ── 本地联调专用配置 ────────────────────────────────────────────────
+	// 背景：wrangler dev 的远程 binding 会话在本账号不可用（Cloudflare API code 10023），
+	// 本机跑不起 Worker，但前端又必须请求一个绝对 URL，所以单独署一个开发用 Worker
+	// 「mybo-ai-dev」。它与生产 Worker 是同一份源码，只有名字、CORS 白名单、
+	// 以及「不绑定自定义域」这三点不同。
+	//
+	// ⚠ 这份配置刻意不写 routes：生产配置里的 ai.mybo.bot 只能属于 mybo-ai，
+	// 若 dev 复用生产配置，部署时会去抢同一个域名。
+	//
+	// 部署：wrangler deploy -c wrangler.dev.jsonc
+	"name": "mybo-ai-dev",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-23",
+	// ── Model Layer ──────────────────────────────────────────────────────
+	"ai": {
+		"binding": "AI"
+	},
+	// ── Search Layer ─────────────────────────────────────────────────────
+	"ai_search": [
+		{
+			"binding": "KNOWLEDGE_SEARCH",
+			"instance_name": "mybo-knowledge",
+			"remote": true
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "KNOWLEDGE_BUCKET",
+			"bucket_name": "mybo-ai-knowledge"
+		}
+	],
+	// dev Worker 只能从 workers.dev 子域访问（前端 dev 端点就是它），
+	// 声明了自定义域的 wrangler 会默认禁用 workers_dev，这里必须显式打开。
+	"workers_dev": true,
+	"vars": {
+		// 只允许 Astro dev server 的来源。这是「开发 Worker」而不是生产，
+		// 所以放 localhost 是安全的；生产白名单在 wrangler.jsonc 里，不受影响。
+		// （.dev.vars 只对 wrangler dev 生效，对已部署的 Worker 无效，
+		//  所以这里显式写一份与 .dev.vars 相同的值。）
+		"ALLOWED_ORIGINS": "http://localhost:4321,http://127.0.0.1:4321",
+		"WORKERS_AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		"MAX_TOP_K": "5",
+		"MAX_INPUT_CHARS": "500"
+	}
+}

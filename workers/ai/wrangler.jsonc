@@ -30,16 +30,26 @@
 			"bucket_name": "mybo-ai-knowledge"
 		}
 	],
+	// 保留 workers.dev 子域：线上旧构建仍指向 mybo-ai.jerrkhe.workers.dev，
+	// 在前端全部切换到 ai.mybo.bot 之前不能关掉它。
+	// 声明了 routes 之后 wrangler 默认会禁用 workers_dev，这里显式打开。
+	"workers_dev": true,
 	"vars": {
 		// CORS 白名单。需要本地联调时，用 .dev.vars 覆盖加上 http://localhost:4321
 		"ALLOWED_ORIGINS": "https://mybo.bot,https://www.mybo.bot",
 		"WORKERS_AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
 		"MAX_TOP_K": "5",
 		"MAX_INPUT_CHARS": "500"
-	}
+	},
 	// ── 自定义域 ────────────────────────────────────────────────────────
-	// 确认 mybo.bot 的 DNS 在本 Cloudflare 账号下托管之后，再取消注释：
-	// "routes": [
-	//   { "pattern": "ai.mybo.bot", "custom_domain": true }
-	// ]
+	// 生产 API：https://ai.mybo.bot/api/chat
+	// workers.dev 子域在国内 DNS 被污染（手机端不可达），自定义域由 Cloudflare
+	// 代建 DNS 记录与证书，绑定后 workers.dev 仍然可用。
+	// ⚠ 开发 Worker 不要复用本文件（会连带抢这个域名），改用 wrangler.dev.jsonc。
+	"routes": [
+		{
+			"pattern": "ai.mybo.bot",
+			"custom_domain": true
+		}
+	]
 }

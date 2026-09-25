@@ -82,10 +82,19 @@ cd workers/ai
 npx wrangler deploy         # 🔑
 ```
 
-### 6. 绑定自定义域 `ai.mybo.bot`
+### 6. 自定义域 `ai.mybo.bot`（已启用）
 
-确认 `mybo.bot` 的 DNS 在本 Cloudflare 账号下托管后，取消 `wrangler.jsonc` 末尾
-`routes` 的注释，再 `npx wrangler deploy`。
+`wrangler.jsonc` 里已配置：
+
+```jsonc
+"routes": [{ "pattern": "ai.mybo.bot", "custom_domain": true }]
+```
+
+Cloudflare 会自动创建 DNS 记录并签发证书，不需要手动改 DNS。
+`workers.dev` 子域同时保留（`workers_dev: true`），只是生产前端不再使用它——
+`*.workers.dev` 在国内部分网络环境下不可达（手机端无法访问），自定义域就是为了绕开它。
+
+⚠ **不要**用 `wrangler.jsonc` 部署开发 Worker，否则它会去抢 `ai.mybo.bot`。开发走下面那份独立配置。
 
 ## 本地开发
 
@@ -103,12 +112,13 @@ You do not have access to this feature. [code: 10023]
 
 ### 做法：另署一个开发用 Worker
 
-同一份代码，只把 `ALLOWED_ORIGINS` 换成 localhost —— **生产 Worker `mybo-ai` 的白名单完全不动**：
+同一份代码，独立的配置文件 `wrangler.dev.jsonc`：名字 `mybo-ai-dev`、
+白名单换成 localhost、**不带任何自定义域**（避免与生产抢 `ai.mybo.bot`）——
+**生产 Worker `mybo-ai` 的配置与白名单完全不受影响**：
 
 ```bash
 cd workers/ai
-npx wrangler deploy --name mybo-ai-dev \
-  --var "ALLOWED_ORIGINS:http://localhost:4321,http://127.0.0.1:4321"   # 🔑
+npx wrangler deploy -c wrangler.dev.jsonc      # 🔑
 ```
 
 前端 `src/components/ai/AskMyBo.astro` 在渲染期决定后端地址：
@@ -116,9 +126,12 @@ npx wrangler deploy --name mybo-ai-dev \
 | 场景 | 后端 |
 | --- | --- |
 | `astro dev`（`import.meta.env.DEV`） | `https://mybo-ai-dev.jerrkhe.workers.dev/api/chat` |
-| `astro build`（生产） | `https://mybo-ai.jerrkhe.workers.dev/api/chat` |
+| `astro build`（生产） | `https://ai.mybo.bot/api/chat` |
 
 localhost 只出现在 dev Worker 的白名单里，**不写进 `wrangler.jsonc`、不进生产配置**。
+
+> ⚠️ `wrangler.dev.jsonc` 必须保留 `workers_dev: true`：dev Worker 只能通过
+> `*.workers.dev` 访问，一旦被关掉，localhost 联调直接失效。
 
 > ⚠️ `wrangler deploy` 走 OAuth 身份。如果环境里设了 `CLOUDFLARE_API_TOKEN`，它会优先被使用，
 > 可能报 `No access to the specified resource`；此时先 `unset CLOUDFLARE_API_TOKEN` 再部署。
@@ -150,11 +163,15 @@ CORS 只回白名单里的精确来源，**不使用 `*`**、不反射任意 Ori
 }
 ```
 
-错误（不含任何内部细节，详细原因只进 Worker 日志）：
+错误响应（同样带 CORS 头，不含任何内部细节，详细原因只进 Worker 日志）：
 
 ```json
-{ "error": { "code": "AI_UNAVAILABLE", "message": "AI Assistant 暂时无法响应，请稍后再试。" } }
+{ "error": { "code": "AI_UNAVAILABLE", "message": "AI 服务暂时无法响应，请稍后再试。" } }
 ```
+
+> 前端会把失败分成两类展示：请求没到后端（DNS 不可达 / fetch reject / 超时 / 断网）
+> 显示「网络请求失败，请检查网络连接后重试。」；后端回了但拿不到回答则显示
+> 「AI 服务暂时无法响应，请稍后再试。」
 
 | code | 状态 | 含义 |
 | --- | --- | --- |
