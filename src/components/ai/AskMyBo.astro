@@ -303,15 +303,41 @@ const API_ENDPOINT = import.meta.env.DEV
 			});
 		}
 
+		/* ---------- 移动端软键盘 ----------
+		   面板是 position: fixed。iOS Safari / 微信在键盘弹出时**不会**改变布局视口高度，
+		   于是贴底的面板会整个被键盘盖住（Android Chrome 默认也只是缩放 visual viewport）。
+		   window.visualViewport 给的是「用户真正看得见」的那块高度，把它写成两个 CSS 变量
+		   交给样式层：--ask-vh 是面板高度，--ask-kb 是键盘遮住的高度（用来把面板顶上去）。
+		   键盘收起后两者自然回到全屏，不需要记录/还原任何状态。 */
+		var vv = typeof window.visualViewport !== 'undefined' ? window.visualViewport : null;
+
+		function syncViewport() {
+			if (!vv) return;
+			var root = document.documentElement;
+			// offsetTop：页面被顶上去（或双指缩放）时的偏移，一并算进被遮住的高度
+			var keyboard = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+			root.style.setProperty('--ask-vh', vv.height + 'px');
+			root.style.setProperty('--ask-kb', keyboard + 'px');
+		}
+
+		if (vv) {
+			vv.addEventListener('resize', syncViewport);
+			vv.addEventListener('scroll', syncViewport);
+			syncViewport();
+		}
+
 		/* ---------- 打开 / 关闭 ---------- */
 
 		function setOpen(open) {
 			panel.hidden = !open;
 			launcher.hidden = open;
 			launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
+			// 手机上面板是全屏的，打开时锁住背景滚动（CSS 只在 ≤640px 生效，桌面不受影响）
+			document.body.classList.toggle('ask-open', open);
 			if (open) {
 				scrollToEnd();
 				input.focus();
+				syncViewport();
 			} else {
 				launcher.focus();
 			}

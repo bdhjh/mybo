@@ -788,21 +788,77 @@ footer {
   }
 }
 
-/* 手机：近乎全屏，输入区贴底，让开安全区 */
-@media (max-width: 640px) {
+/* ---------- 7.5) Ask MyBo 移动端适配 ----------
+   桌面保持右下角卡片不变；手机（含横屏的小高度设备）改成全屏面板。
+   高度不能写死 100vh：iOS Safari / 微信在软键盘弹出时**不会**缩小 fixed 元素所依赖的
+   布局视口，面板底部会被键盘整个盖住。所以这里优先用 AskMyBo.astro 写入的
+   --ask-vh / --ask-kb（来自 window.visualViewport 的真实可见高度），
+   再逐级回退到 100dvh / 100vh。 */
+
+/* 手机上面板是全屏的，打开时锁住背景滚动（会走 body→视口的 overflow 传播，
+   滚动位置天然保留，关闭后不会跳回顶部）。
+   只锁移动端：桌面端是右下角小卡片，锁了会让滚动条消失、PC 布局左右抖动。 */
+@media (max-width: 640px), (hover: none) and (max-height: 500px) {
+  body.ask-open {
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 640px), (hover: none) and (max-height: 500px) {
   .ask-panel {
     right: 0;
-    bottom: 0;
+    bottom: 0; /* 键盘弹出时由 --ask-kb 顶上去 */
+    bottom: var(--ask-kb, 0px);
     left: 0;
     width: 100%;
-    height: 100dvh;
+    height: 100vh;
+    height: var(--ask-vh, 100dvh);
     max-height: none;
     border-radius: 0;
     border: 0;
   }
 
+  /* 刘海 / 手势条：上下左右都让开安全区（横屏时左右尤其明显） */
+  .ask-panel__head {
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+    padding-right: max(14px, env(safe-area-inset-right, 0px));
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+  }
+
   .ask-body {
-    padding: 12px;
+    padding: 12px max(12px, env(safe-area-inset-right, 0px)) 12px
+      max(12px, env(safe-area-inset-left, 0px));
+  }
+
+  .ask-form {
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+  }
+
+  /* iOS Safari 会在输入框字号 < 16px 时自动放大整个页面，导致布局和滚动位置跳乱。
+     与其禁用缩放（伤可用性），不如把字号给到 16px。 */
+  .ask-input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  /* 发送按钮：触屏下保证 44px 的触控高度 */
+  .ask-send {
+    min-width: 48px;
+    height: 44px;
+    padding: 0 16px;
+  }
+
+  /* 来源链接：加大纵向点击区域，长标题也能正常换行 */
+  .msg__source {
+    max-width: 100%;
+    padding: 4px 0;
+    overflow-wrap: break-word;
+  }
+
+  /* 手机上没有物理键盘，"Shift + Enter 换行"是噪音，且键盘弹出时这一行很占地方 */
+  .ask-hint {
+    display: none;
   }
 }
 
