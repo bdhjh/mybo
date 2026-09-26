@@ -455,7 +455,14 @@ footer {
   /* ---- 面板：桌面右下卡片，手机近乎全屏 ---- */
   .ask-panel {
     position: fixed;
-    z-index: 45;
+    /* 必须高过顶部导航（Nav 是 sticky z-50）：手机上 AI 面板是全屏不透明的，
+       低于 50 时导航会压在面板标题栏上面。
+       面板与 Nav 同为 <body> 的直接子元素，处在同一个 stacking context 里
+       （body 及祖先没有 transform / filter / opacity / isolation / contain），
+       因此这里直接比 50 高即可，不需要改 DOM 位置、也不需要 isolation。
+       注：移动端锁背景时 body 会变成 position: fixed（这会新建 stacking context），
+       但面板和 Nav 仍同在其内部，相对层级不变。 */
+    z-index: 60;
     right: 1rem;
     bottom: 1rem;
     display: flex;
