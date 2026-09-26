@@ -37,7 +37,7 @@
 	"vars": {
 		// CORS 白名单。需要本地联调时，用 .dev.vars 覆盖加上 http://localhost:4321
 		"ALLOWED_ORIGINS": "https://mybo.bot,https://www.mybo.bot",
-		"WORKERS_AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		"WORKERS_AI_MODEL": "@cf/qwen/qwen3-30b-a3b-fp8",
 		"MAX_TOP_K": "5",
 		"MAX_INPUT_CHARS": "500"
 	},

@@ -40,7 +40,7 @@
 		// （.dev.vars 只对 wrangler dev 生效，对已部署的 Worker 无效，
 		//  所以这里显式写一份与 .dev.vars 相同的值。）
 		"ALLOWED_ORIGINS": "http://localhost:4321,http://127.0.0.1:4321",
-		"WORKERS_AI_MODEL": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		"WORKERS_AI_MODEL": "@cf/qwen/qwen3-30b-a3b-fp8",
 		"MAX_TOP_K": "5",
 		"MAX_INPUT_CHARS": "500"
 	}
