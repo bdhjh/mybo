@@ -326,19 +326,54 @@ const API_ENDPOINT = import.meta.env.DEV
 			syncViewport();
 		}
 
+		/* ---------- 背景滚动锁定（iOS touch 穿透） ----------
+		   body { overflow: hidden } 在 iOS Safari / 微信里挡不住手指：即使在全屏面板上
+		   滑动，背景页面依旧会跟着滚。可靠做法是打开时把 body 变成 position: fixed，
+		   同时用 top: -scrollY 把内容钉在原地（视觉上完全不动），关闭时解除固定再滚回去。
+		   桌面端不满足 SCROLL_LOCK_QUERY，直接跳过，桌面行为零变化。 */
+		var SCROLL_LOCK_QUERY = '(max-width: 640px), (hover: none) and (max-height: 500px)';
+		var savedScrollY = 0;
+
+		function lockBackground() {
+			if (typeof window.matchMedia !== 'function') return;
+			// 与 global.css 里的断点保持一致：桌面不锁，避免滚动条消失导致 PC 布局抖动
+			if (!window.matchMedia(SCROLL_LOCK_QUERY).matches) return;
+			if (document.body.classList.contains('ask-open')) return;
+
+			savedScrollY = window.scrollY || window.pageYOffset || 0;
+			document.body.style.top = -savedScrollY + 'px';
+			document.body.classList.add('ask-open');
+		}
+
+		function unlockBackground() {
+			if (!document.body.classList.contains('ask-open')) return;
+
+			// 先解除固定（文档高度恢复），再把滚动位置还原；整段同步执行，
+			// 中间不会绘制，所以看不到"闪回顶部"
+			document.body.classList.remove('ask-open');
+			document.body.style.top = '';
+
+			var root = document.documentElement;
+			var prevBehavior = root.style.scrollBehavior;
+			// html 上开了 scroll-behavior: smooth，不清掉的话还原会变成一段动画
+			root.style.scrollBehavior = 'auto';
+			window.scrollTo(0, savedScrollY);
+			root.style.scrollBehavior = prevBehavior || '';
+		}
+
 		/* ---------- 打开 / 关闭 ---------- */
 
 		function setOpen(open) {
 			panel.hidden = !open;
 			launcher.hidden = open;
 			launcher.setAttribute('aria-expanded', open ? 'true' : 'false');
-			// 手机上面板是全屏的，打开时锁住背景滚动（CSS 只在 ≤640px 生效，桌面不受影响）
-			document.body.classList.toggle('ask-open', open);
 			if (open) {
+				lockBackground();
 				scrollToEnd();
 				input.focus();
 				syncViewport();
 			} else {
+				unlockBackground();
 				launcher.focus();
 			}
 		}

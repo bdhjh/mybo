@@ -795,11 +795,21 @@ footer {
    --ask-vh / --ask-kb（来自 window.visualViewport 的真实可见高度），
    再逐级回退到 100dvh / 100vh。 */
 
-/* 手机上面板是全屏的，打开时锁住背景滚动（会走 body→视口的 overflow 传播，
-   滚动位置天然保留，关闭后不会跳回顶部）。
+/* 手机上面板是全屏的，打开时锁住背景滚动。
+   注意单靠 overflow: hidden 挡不住 iOS 的手指滑动 —— 见下面 .ask-open 的 position: fixed。
    只锁移动端：桌面端是右下角小卡片，锁了会让滚动条消失、PC 布局左右抖动。 */
 @media (max-width: 640px), (hover: none) and (max-height: 500px) {
+  /* iOS Safari / 微信里，body{overflow:hidden} 挡不住 touch 滚动穿透：
+     手指在（全屏的）AI 面板上滑动，背景页面照样跟着滚。
+     这里把 body 变成 position: fixed：文档高度归零，自然就滚不动了。
+     内容会不会"跳"？不会 —— AskMyBo.astro 会同步写入 top: -scrollY，
+     把正文钉在原来的视觉位置上，关闭时再滚回去。
+     面板自己是独立的 fixed 元素，不受 body 位移影响，内部滚动照常。
+     没有用 touch-action: none —— 那会把对话区域的滚动一起干掉。 */
   body.ask-open {
+    position: fixed;
+    right: 0;
+    left: 0;
     overflow: hidden;
   }
 }
